@@ -5,6 +5,7 @@ import "./globals.css"
 import { cn } from "@/lib/utils";
 import { ThemeProvider } from "@/features/theme";
 import { SolanaProvider, solanaRpcClientPath } from "@/features/solana";
+import { Toaster } from "@/components/ui/toast";
 
 const oxaniumHeading = Oxanium({ subsets: ['latin'], variable: '--font-heading' });
 
@@ -35,6 +36,7 @@ export default async function RootLayout({
         <ThemeProvider>
           <SolanaProvider endpoint={endpoint}>{children}</SolanaProvider>
         </ThemeProvider>
+        <Toaster />
       </body>
     </html>
   )

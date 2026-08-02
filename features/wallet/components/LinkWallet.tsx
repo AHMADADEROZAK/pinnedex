@@ -7,7 +7,7 @@ import { Link2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { linkWallet, type LinkWalletState } from "@/features/wallet/actions/linkWallet";
 
-const MESSAGE = "pin-dex wallet link";
+const MESSAGE = "pinnedex wallet link";
 
 function bytesToBase64(bytes: Uint8Array) {
   let binary = "";

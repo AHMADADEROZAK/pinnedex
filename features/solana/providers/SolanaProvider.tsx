@@ -21,7 +21,14 @@ export const SolanaProvider: FC<SolanaProviderProps> = ({
 
   return (
     <ConnectionProvider endpoint={memoizedEndpoint}>
-      <WalletProvider wallets={wallets} autoConnect>
+      <WalletProvider
+        wallets={wallets}
+        autoConnect
+        onError={() => {
+          // Wallet adapter logs send errors to console by default.
+          // Errors are surfaced to the user via the UI, so swallow them here.
+        }}
+      >
         <WalletModalProvider>{children}</WalletModalProvider>
       </WalletProvider>
     </ConnectionProvider>

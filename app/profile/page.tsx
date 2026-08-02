@@ -1,9 +1,11 @@
 import { redirect } from "next/navigation";
+import { ExternalLink } from "lucide-react";
 import { Types } from "mongoose";
 
 import { Header } from "@/features/app-shell";
 import { LogoutButton } from "@/features/auth";
 import { WalletManager } from "@/features/wallet";
+import { solanaNetwork } from "@/features/solana";
 import { formatUsd } from "@/lib/format";
 import { connectToDatabase } from "@/lib/mongodb";
 import { getSessionUser } from "@/lib/dal";
@@ -26,6 +28,12 @@ export default async function ProfilePage() {
     .exec();
 
   const { tokenPriceUsd } = await getPresaleUsdPrices();
+
+  const explorerCluster =
+    solanaNetwork === "mainnet-beta" ? "" : `?cluster=${solanaNetwork}`;
+
+  const txUrl = (sig: string) =>
+    `https://explorer.solana.com/tx/${sig}${explorerCluster}`;
 
   const totalTokens = purchases.reduce((sum, p) => sum + p.tokenAllocation, 0);
   const totalSol = purchases.reduce((sum, p) => sum + p.solLamports, 0);
@@ -96,8 +104,18 @@ export default async function ProfilePage() {
                       {new Date(p.createdAt).toLocaleString()}
                     </span>
                   </div>
-                  <p className="mt-1 break-all font-mono text-xs text-muted-foreground">
-                    {p.txSignature}
+                  <p className="mt-1 flex items-center gap-2">
+                    <a
+                      href={txUrl(p.txSignature)}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex min-w-0 items-center gap-1 text-primary hover:underline"
+                    >
+                      <ExternalLink className="size-3.5 shrink-0" />
+                      <span className="truncate font-mono text-xs">
+                        {p.txSignature}
+                      </span>
+                    </a>
                   </p>
                 </li>
               ))}

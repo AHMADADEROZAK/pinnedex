@@ -9,7 +9,7 @@ import { getSessionUser, verifySession } from "@/lib/dal";
 import { enforceRateLimit } from "@/features/security";
 import { User } from "@/features/auth/models/User";
 
-const WALLET_LINK_MESSAGE = "pin-dex wallet link";
+const WALLET_LINK_MESSAGE = "pinnedex wallet link";
 
 export type LinkWalletState =
   | { success?: boolean; error?: string; linkedAddress?: string }

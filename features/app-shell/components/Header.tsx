@@ -24,7 +24,7 @@ export function Header() {
         <Link href="/" className="flex items-center gap-2">
           <PinIcon className="size-5 text-primary" />
           <h1 className="font-heading text-lg font-semibold tracking-tight">
-            pin-dex
+            pinnedex
           </h1>
         </Link>
         <nav className="flex items-center gap-1 text-sm">

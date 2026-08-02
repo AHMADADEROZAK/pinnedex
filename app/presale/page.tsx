@@ -1,7 +1,13 @@
 import { redirect } from "next/navigation";
 
 import { Header } from "@/features/app-shell";
-import { BuyForm, isPresaleActive, presaleConfig, getPresaleUsdPrices } from "@/features/presale";
+import {
+  BuyForm,
+  PresaleCountdown,
+  isPresaleActive,
+  presaleConfig,
+  getPresaleUsdPrices,
+} from "@/features/presale";
 import { getSessionUser } from "@/lib/dal";
 
 export default async function PresalePage() {
@@ -19,6 +25,8 @@ export default async function PresalePage() {
     maxTokens: presaleConfig.maxTokens,
   };
 
+  const endsAt = presaleConfig.end;
+
   return (
     <div className="flex min-h-svh flex-col">
       <Header />
@@ -31,6 +39,20 @@ export default async function PresalePage() {
               : "The presale is not open yet."}
           </p>
         </div>
+
+        {endsAt && (
+          <div className="flex flex-col gap-2 rounded-md border bg-card p-4">
+            <p className="text-sm text-muted-foreground">
+              Presale ends on{" "}
+              {endsAt.toLocaleString(undefined, {
+                year: "numeric",
+                month: "long",
+                day: "numeric",
+              })}
+            </p>
+            <PresaleCountdown end={endsAt} />
+          </div>
+        )}
 
         {active ? (
           <BuyForm config={config} linkedWallets={user.wallets.map((w) => w.address)} />

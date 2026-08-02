@@ -13,6 +13,11 @@ function ThemeProvider({
       defaultTheme="system"
       enableSystem
       disableTransitionOnChange
+      scriptProps={
+        typeof window === "undefined"
+          ? undefined
+          : ({ type: "application/json" } as const)
+      }
       {...props}
     >
       <ThemeHotkey />

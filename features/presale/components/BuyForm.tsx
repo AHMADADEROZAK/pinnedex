@@ -11,6 +11,16 @@ import * as z from "zod";
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
 import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import { toast } from "@/components/ui/toast";
+import {
   Field,
   FieldError,
   FieldLabel,
@@ -89,7 +99,22 @@ export function BuyForm({
       const sig = await sendTransaction(tx, connection);
       form.setValue("signature", sig);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Transaction failed.");
+      const message =
+        err instanceof Error ? err.message : "Transaction failed.";
+      const cancelled =
+        message.toLowerCase().includes("rejected") ||
+        message.toLowerCase().includes("cancel") ||
+        message.toLowerCase().includes("denied");
+
+      if (cancelled) {
+        toast.add({
+          title: "Transaction cancelled",
+          description: "You closed or rejected the request in your wallet.",
+          type: "warning",
+        });
+      } else {
+        setError(message);
+      }
     } finally {
       setSending(false);
     }
@@ -118,7 +143,7 @@ export function BuyForm({
 
   return (
     <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col gap-4">
-      <div className="flex flex-col gap-1">
+      <div className="flex flex-col gap-3">
         <Controller
           name="tokens"
           control={form.control}
@@ -195,7 +220,21 @@ export function BuyForm({
         </Button>
       )}
 
-      {error && <p className="text-sm text-destructive">{error}</p>}
+      {error && (
+        <AlertDialog open onOpenChange={() => setError(null)}>
+          <AlertDialogContent size="sm">
+            <AlertDialogHeader>
+              <AlertDialogTitle>Transaction failed</AlertDialogTitle>
+              <AlertDialogDescription>{error}</AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogAction onClick={() => setError(null)} className="w-full">
+                OK
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
+      )}
 
       {signature && (
         <Controller
