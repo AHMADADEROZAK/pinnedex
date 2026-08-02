@@ -1,5 +1,5 @@
 import { redirect } from "next/navigation";
-import { ExternalLink } from "lucide-react";
+import { ExternalLink, Shield } from "lucide-react";
 import { Types } from "mongoose";
 
 import { Header } from "@/features/app-shell";
@@ -7,6 +7,7 @@ import { LogoutButton } from "@/features/auth";
 import { WalletManager } from "@/features/wallet";
 import { solanaNetwork } from "@/features/solana";
 import { formatUsd } from "@/lib/format";
+import { adminBasePath } from "@/lib/admin-path";
 import { connectToDatabase } from "@/lib/mongodb";
 import { getSessionUser } from "@/lib/dal";
 import { Purchase } from "@/features/presale/models/Purchase";
@@ -49,7 +50,18 @@ export default async function ProfilePage() {
             </h1>
             <p className="text-sm text-muted-foreground">{user.email}</p>
           </div>
-          <LogoutButton />
+          <div className="flex items-center gap-2">
+            {user.role === "admin" ? (
+              <a
+                href={adminBasePath()}
+                className="inline-flex items-center gap-1.5 rounded-md border px-3 py-2 text-sm font-medium text-foreground hover:bg-muted"
+              >
+                <Shield className="size-4 text-primary" />
+                Admin
+              </a>
+            ) : null}
+            <LogoutButton />
+          </div>
         </div>
 
         <div className="flex flex-col gap-2">

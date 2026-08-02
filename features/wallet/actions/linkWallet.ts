@@ -6,7 +6,6 @@ import { PublicKey } from "@solana/web3.js";
 
 import { connectToDatabase } from "@/lib/mongodb";
 import { getSessionUser, verifySession } from "@/lib/dal";
-import { enforceRateLimit } from "@/features/security";
 import { User } from "@/features/auth/models/User";
 
 const WALLET_LINK_MESSAGE = "pinnedex wallet link";
@@ -20,9 +19,6 @@ export async function linkWallet(
   formData: FormData,
 ): Promise<LinkWalletState> {
   await verifySession();
-
-  const limit = await enforceRateLimit();
-  if (!limit.allowed) return { error: "Too many requests. Please wait a minute." };
 
   const user = await getSessionUser();
   if (!user) return { error: "User not found." };

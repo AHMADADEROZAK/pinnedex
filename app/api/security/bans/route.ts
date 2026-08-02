@@ -1,12 +1,7 @@
 import { connectToDatabase } from "@/lib/mongodb";
-import { BannedIp, IpRateLimit, banIp, enforceRateLimit } from "@/features/security";
+import { BannedIp, IpRateLimit, banIp } from "@/features/security";
 
 export async function GET() {
-  const limit = await enforceRateLimit();
-  if (!limit.allowed) {
-    return Response.json({ error: "Too many requests." }, { status: 429 });
-  }
-
   await connectToDatabase();
 
   const banned = await BannedIp.find().sort({ createdAt: -1 }).lean().exec();
@@ -21,11 +16,6 @@ export async function GET() {
 }
 
 export async function POST(request: Request) {
-  const limit = await enforceRateLimit();
-  if (!limit.allowed) {
-    return Response.json({ error: "Too many requests." }, { status: 429 });
-  }
-
   let body: { ip?: string; reason?: string };
   try {
     body = await request.json();
@@ -44,11 +34,6 @@ export async function POST(request: Request) {
 }
 
 export async function DELETE(request: Request) {
-  const limit = await enforceRateLimit();
-  if (!limit.allowed) {
-    return Response.json({ error: "Too many requests." }, { status: 429 });
-  }
-
   const { searchParams } = new URL(request.url);
   const ip = searchParams.get("ip")?.trim();
   if (!ip) {

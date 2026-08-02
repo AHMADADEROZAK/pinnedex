@@ -1,12 +1,6 @@
 import { getUsdIdrRate, refreshUsdIdrRate } from "@/features/rates/exchangeRate";
-import { enforceRateLimit } from "@/features/security";
 
 export async function GET() {
-  const limit = await enforceRateLimit();
-  if (!limit.allowed) {
-    return Response.json({ error: "Too many requests." }, { status: 429 });
-  }
-
   const rate = await getUsdIdrRate();
 
   return Response.json({
@@ -20,11 +14,6 @@ export async function GET() {
 }
 
 export async function POST() {
-  const limit = await enforceRateLimit();
-  if (!limit.allowed) {
-    return Response.json({ error: "Too many requests." }, { status: 429 });
-  }
-
   const refreshed = await refreshUsdIdrRate();
 
   if (!refreshed) {
