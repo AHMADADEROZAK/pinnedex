@@ -1,23 +1,30 @@
-import { Geist, Geist_Mono, Inter, Oxanium } from "next/font/google"
+import { Geist_Mono, Inter, Oxanium } from "next/font/google"
+import { headers } from "next/headers"
 
 import "./globals.css"
-import { ThemeProvider } from "@/components/theme-provider"
 import { cn } from "@/lib/utils";
+import { ThemeProvider } from "@/features/theme";
+import { SolanaProvider, solanaRpcClientPath } from "@/features/solana";
 
-const oxaniumHeading = Oxanium({subsets:['latin'],variable:'--font-heading'});
+const oxaniumHeading = Oxanium({ subsets: ['latin'], variable: '--font-heading' });
 
-const inter = Inter({subsets:['latin'],variable:'--font-sans'})
+const inter = Inter({ subsets: ['latin'], variable: '--font-sans' })
 
 const fontMono = Geist_Mono({
   subsets: ["latin"],
   variable: "--font-mono",
 })
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode
 }>) {
+  const headersList = await headers()
+  const host = headersList.get("host") ?? "localhost:3000"
+  const proto = headersList.get("x-forwarded-proto") ?? "http"
+  const endpoint = `${proto}://${host}${solanaRpcClientPath}`
+
   return (
     <html
       lang="en"
@@ -25,7 +32,9 @@ export default function RootLayout({
       className={cn("antialiased", fontMono.variable, "font-sans", inter.variable, oxaniumHeading.variable)}
     >
       <body>
-        <ThemeProvider>{children}</ThemeProvider>
+        <ThemeProvider>
+          <SolanaProvider endpoint={endpoint}>{children}</SolanaProvider>
+        </ThemeProvider>
       </body>
     </html>
   )
