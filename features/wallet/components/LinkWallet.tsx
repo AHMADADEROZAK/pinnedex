@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState, useState } from "react";
+import { startTransition, useActionState, useState } from "react";
 import { useWallet } from "@solana/wallet-adapter-react";
 import { Link2 } from "lucide-react";
 
@@ -41,7 +41,7 @@ export function LinkWallet() {
       const formData = new FormData();
       formData.set("address", publicKey.toBase58());
       formData.set("signature", bytesToBase64(signature));
-      formAction(formData);
+      startTransition(() => formAction(formData));
     } catch {
       setError("Signing was rejected or failed.");
     } finally {

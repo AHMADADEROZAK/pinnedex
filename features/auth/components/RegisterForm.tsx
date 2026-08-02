@@ -17,6 +17,7 @@ import { InputGroup, InputGroupButton, InputGroupInput } from "@/components/ui/i
 import { Input } from "@/components/ui/input";
 import { signup } from "@/features/auth/actions/auth";
 import { SignupFormSchema, type FormState } from "@/lib/definitions";
+import { doubleSha256Hex } from "@/lib/password";
 
 type SignupValues = z.infer<typeof SignupFormSchema>;
 
@@ -37,7 +38,7 @@ export function RegisterForm() {
     const formData = new FormData();
     formData.set("name", values.name);
     formData.set("email", values.email);
-    formData.set("password", values.password);
+    formData.set("password", await doubleSha256Hex(values.password));
 
     const state: FormState = await signup(undefined, formData);
     setPending(false);

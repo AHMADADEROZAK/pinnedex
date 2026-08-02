@@ -1,23 +1,34 @@
 "use server";
 
 import { redirect } from "next/navigation";
-import bcrypt from "bcryptjs";
 
 import { connectToDatabase } from "@/lib/mongodb";
 import { createSession, deleteSession } from "@/lib/session";
 import { enforceRateLimit } from "@/features/security";
-import { LoginFormSchema, SignupFormSchema, type FormState } from "@/lib/definitions";
-import { User } from "@/features/auth/models/User";
+import {
+  LoginServerSchema,
+  SignupServerSchema,
+  type FormState,
+} from "@/lib/definitions";
+import { User, type UserRole } from "@/features/auth/models/User";
 
 const rateLimited = (): FormState => ({
   message: "Too many requests. Please wait a minute.",
 });
 
+function roleForEmail(email: string): UserRole {
+  const admins = (process.env.ADMIN_EMAILS ?? "")
+    .split(",")
+    .map((e) => e.trim().toLowerCase())
+    .filter(Boolean);
+  return admins.includes(email.toLowerCase()) ? "admin" : "user";
+}
+
 export async function signup(state: FormState, formData: FormData) {
   const limit = await enforceRateLimit();
   if (!limit.allowed) return rateLimited();
 
-  const validatedFields = SignupFormSchema.safeParse({
+  const validatedFields = SignupServerSchema.safeParse({
     name: formData.get("name"),
     email: formData.get("email"),
     password: formData.get("password"),
@@ -38,11 +49,11 @@ export async function signup(state: FormState, formData: FormData) {
     return { errors: { email: ["An account with this email already exists."] } };
   }
 
-  const passwordHash = await bcrypt.hash(password, 10);
-  const user = new User({ name, email, passwordHash });
+  const role = roleForEmail(email);
+  const user = new User({ name, email, passwordHash: password, role });
   await user.save();
 
-  await createSession(user._id.toString());
+  await createSession(user._id.toString(), role);
   redirect("/profile");
 }
 
@@ -50,7 +61,7 @@ export async function login(state: FormState, formData: FormData) {
   const limit = await enforceRateLimit();
   if (!limit.allowed) return rateLimited();
 
-  const validatedFields = LoginFormSchema.safeParse({
+  const validatedFields = LoginServerSchema.safeParse({
     email: formData.get("email"),
     password: formData.get("password"),
   });
@@ -70,12 +81,11 @@ export async function login(state: FormState, formData: FormData) {
     return { errors: { email: ["No account found with this email."] } };
   }
 
-  const valid = await bcrypt.compare(password, user.passwordHash);
-  if (!valid) {
+  if (user.passwordHash !== password) {
     return { errors: { password: ["Incorrect password."] } };
   }
 
-  await createSession(user._id.toString());
+  await createSession(user._id.toString(), user.role);
   redirect("/profile");
 }
 

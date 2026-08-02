@@ -1,38 +1,39 @@
 import "server-only";
-import { SignJWT, jwtVerify } from "jose";
+import { EncryptJWT, jwtDecrypt } from "jose";
+import { createHash } from "node:crypto";
 
 import { cookies } from "next/headers";
+import type { UserRole } from "@/features/auth/models/User";
 
 export type SessionPayload = {
   userId: string;
+  role: UserRole;
   expiresAt: Date;
 };
 
-const secretKey = process.env.SESSION_SECRET;
-const encodedKey = new TextEncoder().encode(secretKey);
+const rawSecret = process.env.SESSION_SECRET ?? "";
+const secretKey = createHash("sha256").update(rawSecret).digest();
 
 export async function encrypt(payload: SessionPayload) {
-  return new SignJWT(payload)
-    .setProtectedHeader({ alg: "HS256" })
+  return new EncryptJWT(payload)
+    .setProtectedHeader({ alg: "dir", enc: "A256GCM" })
     .setIssuedAt()
     .setExpirationTime("7d")
-    .sign(encodedKey);
+    .encrypt(secretKey);
 }
 
 export async function decrypt(session: string | undefined = "") {
   try {
-    const { payload } = await jwtVerify(session, encodedKey, {
-      algorithms: ["HS256"],
-    });
+    const { payload } = await jwtDecrypt(session, secretKey);
     return payload;
   } catch {
     return null;
   }
 }
 
-export async function createSession(userId: string) {
+export async function createSession(userId: string, role: UserRole) {
   const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
-  const session = await encrypt({ userId, expiresAt });
+  const session = await encrypt({ userId, role, expiresAt });
   const cookieStore = await cookies();
 
   cookieStore.set("session", session, {

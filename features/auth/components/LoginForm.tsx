@@ -17,6 +17,7 @@ import { InputGroup, InputGroupAddon, InputGroupButton, InputGroupInput } from "
 import { Input } from "@/components/ui/input";
 import { login } from "@/features/auth/actions/auth";
 import { LoginFormSchema, type FormState } from "@/lib/definitions";
+import { doubleSha256Hex } from "@/lib/password";
 
 type LoginValues = z.infer<typeof LoginFormSchema>;
 
@@ -36,7 +37,7 @@ export function LoginForm() {
 
     const formData = new FormData();
     formData.set("email", values.email);
-    formData.set("password", values.password);
+    formData.set("password", await doubleSha256Hex(values.password));
 
     const state: FormState = await login(undefined, formData);
     setPending(false);

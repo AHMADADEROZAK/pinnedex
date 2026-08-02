@@ -35,7 +35,10 @@ export async function banIp(ip: string, reason: string) {
   ).exec();
 }
 
-export async function checkRateLimit(ip: string): Promise<RateLimitResult> {
+export async function checkRateLimit(
+  ip: string,
+  maxRequests = MAX_REQUESTS,
+): Promise<RateLimitResult> {
   await connectToDatabase();
 
   if (await isBanned(ip)) {
@@ -55,8 +58,8 @@ export async function checkRateLimit(ip: string): Promise<RateLimitResult> {
 
   const recent = doc.timestamps.filter((t) => t.getTime() >= cutoff.getTime());
 
-  if (recent.length >= MAX_REQUESTS) {
-    await banIp(ip, `Exceeded ${MAX_REQUESTS} requests in 60 seconds`);
+  if (recent.length >= maxRequests) {
+    await banIp(ip, `Exceeded ${maxRequests} requests in 60 seconds`);
     return { allowed: false, reason: "banned", retryAfterSec: 0 };
   }
 
@@ -68,7 +71,7 @@ export async function checkRateLimit(ip: string): Promise<RateLimitResult> {
   return { allowed: true };
 }
 
-export async function enforceRateLimit(): Promise<RateLimitResult> {
+export async function enforceRateLimit(maxRequests?: number): Promise<RateLimitResult> {
   const ip = await getClientIp();
-  return checkRateLimit(ip);
+  return checkRateLimit(ip, maxRequests);
 }

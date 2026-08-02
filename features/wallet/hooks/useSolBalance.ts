@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useConnection, useWallet } from "@solana/wallet-adapter-react";
 import { LAMPORTS_PER_SOL } from "@solana/web3.js";
 
@@ -27,13 +27,11 @@ export function useSolBalance() {
     }
   }, [connection, publicKey]);
 
-  const prevPublicKey = useRef(publicKey);
   useEffect(() => {
-    if (prevPublicKey.current === publicKey) {
-      return;
+    if (publicKey) {
+      const id = setTimeout(refresh, 0);
+      return () => clearTimeout(id);
     }
-    prevPublicKey.current = publicKey;
-    refresh();
   }, [publicKey, refresh]);
 
   return { balance, loading, refresh };

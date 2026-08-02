@@ -15,7 +15,19 @@ export const verifySession = cache(async () => {
     redirect("/login");
   }
 
-  return { isAuth: true, userId: String(session.userId) };
+  return {
+    isAuth: true,
+    userId: String(session.userId),
+    role: session.role ?? "user",
+  };
+});
+
+export const requireAdmin = cache(async () => {
+  const session = await verifySession();
+  if (session.role !== "admin") {
+    redirect("/");
+  }
+  return session;
 });
 
 export const getSessionUser = cache(
