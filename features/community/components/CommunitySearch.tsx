@@ -7,7 +7,13 @@ import { Input } from "@/components/ui/input"
 import { PostFeed } from "@/features/community/components/PostFeed"
 import type { PostData } from "@/features/community/components/PostCard"
 
-export function CommunitySearch({ posts }: { posts: PostData[] }) {
+export function CommunitySearch({
+  posts,
+  isAuthenticated = true,
+}: {
+  posts: PostData[]
+  isAuthenticated?: boolean
+}) {
   const [query, setQuery] = useState("")
 
   const filtered = useMemo(() => {
@@ -31,7 +37,7 @@ export function CommunitySearch({ posts }: { posts: PostData[] }) {
           className="pl-9"
         />
       </div>
-      <PostFeed posts={filtered} />
+      <PostFeed posts={filtered} isAuthenticated={isAuthenticated} />
     </>
   )
 }

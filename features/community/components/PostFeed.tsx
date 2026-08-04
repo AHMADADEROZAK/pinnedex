@@ -2,7 +2,13 @@ import { PostCard, type PostData } from "@/features/community/components/PostCar
 
 export type { PostData }
 
-export function PostFeed({ posts }: { posts: PostData[] }) {
+export function PostFeed({
+  posts,
+  isAuthenticated,
+}: {
+  posts: PostData[]
+  isAuthenticated: boolean
+}) {
   if (posts.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center gap-2 py-16 text-muted-foreground">
@@ -15,7 +21,7 @@ export function PostFeed({ posts }: { posts: PostData[] }) {
   return (
     <div className="flex flex-col gap-3">
       {posts.map((post) => (
-        <PostCard key={post._id} post={post} />
+        <PostCard key={post._id} post={post} isAuthenticated={isAuthenticated} />
       ))}
     </div>
   )

@@ -49,12 +49,19 @@ const timeAgo = (dateStr: string) => {
   return `${days}d`
 }
 
-export function PostCard({ post }: { post: PostData }) {
+export function PostCard({
+  post,
+  isAuthenticated,
+}: {
+  post: PostData
+  isAuthenticated: boolean
+}) {
   const router = useRouter()
   const [liked, setLiked] = useState(post.likedByMe)
   const [likesCount, setLikesCount] = useState(post.likesCount)
 
   const handleLike = async () => {
+    if (!isAuthenticated) return
     const prev = liked
     setLiked(!prev)
     setLikesCount((c) => c + (prev ? -1 : 1))
@@ -101,6 +108,7 @@ export function PostCard({ post }: { post: PostData }) {
                   type="button"
                   variant="ghost"
                   onClick={handleLike}
+                  disabled={!isAuthenticated}
                   aria-label="Like"
                   className={cn(
                     "inline-flex items-center gap-1 px-2 py-1 transition-colors hover:bg-muted rounded-full",
@@ -112,10 +120,14 @@ export function PostCard({ post }: { post: PostData }) {
                 </Button>
               }
             />
-            <TooltipContent>Like</TooltipContent>
+            <TooltipContent>{isAuthenticated ? "Like" : "Sign in to like"}</TooltipContent>
           </Tooltip>
 
-          <CommentDialog postId={post._id} count={post.commentCount} />
+          <CommentDialog
+            postId={post._id}
+            count={post.commentCount}
+            disabled={!isAuthenticated}
+          />
 
           <Tooltip>
             <TooltipTrigger

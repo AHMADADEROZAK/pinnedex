@@ -11,7 +11,7 @@ export async function Header() {
   const user = await getSessionUser();
 
   const navLinks: (HeaderLink & { auth?: boolean })[] = [
-    { href: "/community", label: "Community", auth: true },
+    { href: "/community", label: "Community" },
     { href: "/presale", label: "Presale" },
     { href: "/leaderboard", label: "Leaderboard" },
     { href: "/profile", label: "Profile", auth: true },

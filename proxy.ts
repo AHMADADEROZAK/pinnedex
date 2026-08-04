@@ -4,7 +4,7 @@ import type { NextRequest } from "next/server";
 import { decrypt } from "@/lib/session";
 import { adminBasePath } from "@/lib/admin-path";
 
-const protectedRoutes = ["/app", "/profile", "/community"];
+const protectedRoutes = ["/app", "/profile"];
 const authRoutes = ["/login", "/register"];
 
 export async function proxy(request: NextRequest) {

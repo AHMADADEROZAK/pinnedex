@@ -63,7 +63,15 @@ function CharacterRing({ value, max }: { value: number; max: number }) {
   )
 }
 
-export function CommentDialog({ postId, count = 0 }: { postId: string; count?: number }) {
+export function CommentDialog({
+  postId,
+  count = 0,
+  disabled = false,
+}: {
+  postId: string
+  count?: number
+  disabled?: boolean
+}) {
   const router = useRouter()
   const [open, setOpen] = useState(false)
   const [pending, setPending] = useState(false)
@@ -161,7 +169,8 @@ export function CommentDialog({ postId, count = 0 }: { postId: string; count?: n
             <Button
               type="button"
               variant="ghost"
-              onClick={() => setOpen(true)}
+              onClick={() => !disabled && setOpen(true)}
+              disabled={disabled}
               aria-label="Comment"
               className="inline-flex items-center gap-1 rounded-full px-2 py-1 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
             >
@@ -170,7 +179,7 @@ export function CommentDialog({ postId, count = 0 }: { postId: string; count?: n
             </Button>
           }
         />
-        <TooltipContent>Comment</TooltipContent>
+        <TooltipContent>{disabled ? "Sign in to comment" : "Comment"}</TooltipContent>
       </Tooltip>
       <AlertDialogContent size="default" className="overflow-hidden p-0 sm:max-w-md">
         <AlertDialogHeader className="space-y-0 border-b px-5 py-4 text-left">

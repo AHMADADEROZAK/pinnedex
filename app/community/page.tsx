@@ -1,4 +1,6 @@
 import { Header } from "@/features/app-shell"
+import Link from "next/link"
+import { Sparkles as SparklesIcon } from "lucide-react"
 import { PinDialog } from "@/features/community/components/PinDialog"
 import { CommunitySearch } from "@/features/community/components/CommunitySearch"
 import { PopularPins } from "@/features/community/components/PopularPins"
@@ -106,15 +108,41 @@ export default async function CommunityPage() {
             </h1>
 
             {/* SEARCH */}
-            {user && (
+            {user ? (
               <PinDialog
                 feeSol={communityConfig.feeSol}
                 collectionWallet={presaleConfig.collectionWallet}
               />
+            ) : (
+              <Link
+                href="/login"
+                className="inline-flex items-center gap-1.5 rounded-full border border-[#9945FF]/40 px-4 py-1.5 text-sm font-medium text-[#9945FF] transition-colors hover:bg-[#9945FF]/10"
+              >
+                <SparklesIcon className="size-4" />
+                Join to create a pin
+              </Link>
             )}
           </div>
 
-          <CommunitySearch posts={postData} />
+          {!user && (
+            <div className="rounded-xl border bg-card p-4 text-sm">
+              <p className="font-medium">
+                You&apos;re viewing the community in preview mode.
+              </p>
+              <p className="mt-1 text-muted-foreground">
+                <Link href="/login" className="text-primary hover:underline">
+                  Sign in
+                </Link>{" "}
+                or{" "}
+                <Link href="/register" className="text-primary hover:underline">
+                  create an account
+                </Link>{" "}
+                to create pins, like, and comment.
+              </p>
+            </div>
+          )}
+
+          <CommunitySearch posts={postData} isAuthenticated={!!user} />
         </div>
         <aside className="sticky top-14 hidden self-start lg:block">
           <PopularPins pins={popular} />

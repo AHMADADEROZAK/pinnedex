@@ -1,7 +1,24 @@
+import { getSessionUser } from "@/lib/dal";
 import { connectToDatabase } from "@/lib/mongodb";
 import { BannedIp, IpRateLimit, banIp } from "@/features/security";
 
+async function requireAdmin() {
+  const user = await getSessionUser();
+  if (!user || user.role !== "admin") {
+    return {
+      response: Response.json(
+        { error: "Unauthorized" },
+        { status: 403 },
+      ) as Response,
+    };
+  }
+  return { response: null };
+}
+
 export async function GET() {
+  const { response } = await requireAdmin();
+  if (response) return response;
+
   await connectToDatabase();
 
   const banned = await BannedIp.find().sort({ createdAt: -1 }).lean().exec();
@@ -16,6 +33,9 @@ export async function GET() {
 }
 
 export async function POST(request: Request) {
+  const { response } = await requireAdmin();
+  if (response) return response;
+
   let body: { ip?: string; reason?: string };
   try {
     body = await request.json();
@@ -34,6 +54,9 @@ export async function POST(request: Request) {
 }
 
 export async function DELETE(request: Request) {
+  const { response } = await requireAdmin();
+  if (response) return response;
+
   const { searchParams } = new URL(request.url);
   const ip = searchParams.get("ip")?.trim();
   if (!ip) {

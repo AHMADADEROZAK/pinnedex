@@ -186,7 +186,23 @@ export default async function PostDetailPage({
             </div>
           )}
 
-          <InlineCommentForm postId={postId} />
+          {user ? (
+            <InlineCommentForm postId={postId} />
+          ) : (
+            <div className="rounded-xl border bg-card p-4 text-sm">
+              <p className="font-medium">Sign in to join the discussion.</p>
+              <p className="mt-1 text-muted-foreground">
+                <Link href="/login" className="text-primary hover:underline">
+                  Sign in
+                </Link>{" "}
+                or{" "}
+                <Link href="/register" className="text-primary hover:underline">
+                  create an account
+                </Link>{" "}
+                to comment on pins and join the community.
+              </p>
+            </div>
+          )}
         </div>
       </main>
     </div>

@@ -204,6 +204,11 @@ export async function comment(
 }
 
 export async function toggleLike(postId: string) {
+  const limit = await enforceRateLimit()
+  if (!limit.allowed) {
+    return
+  }
+
   const session = await verifySession()
 
   await connectToDatabase()
