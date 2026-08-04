@@ -8,6 +8,8 @@ import {
   ShieldBan,
   ShoppingCart,
   Users,
+  MessagesSquare,
+  Globe,
 } from "lucide-react";
 
 import {
@@ -29,8 +31,11 @@ const links = [
   { href: "/admin", label: "Dashboard", icon: LayoutDashboard },
   { href: "/admin/users", label: "Users", icon: Users },
   { href: "/admin/purchases", label: "Purchases", icon: ShoppingCart },
+  { href: "/admin/pins", label: "Community Pins", icon: MessagesSquare },
   { href: "/admin/bans", label: "Bans", icon: ShieldBan },
 ];
+
+const externalLinks = [{ href: "/community", label: "Community", icon: Globe }];
 
 export function AdminSidebar({ basePath }: { basePath: string }) {
   const pathname = usePathname();
@@ -73,6 +78,29 @@ export function AdminSidebar({ basePath }: { basePath: string }) {
                       isActive={active}
                       tooltip={link.label}
                       render={<Link href={href} />}
+                    >
+                      <link.icon />
+                      <span>{link.label}</span>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                );
+              })}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+        <SidebarGroup>
+          <SidebarGroupLabel>Public</SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              {externalLinks.map((link) => {
+                const active =
+                  pathname === link.href || pathname.startsWith(`${link.href}/`);
+                return (
+                  <SidebarMenuItem key={link.href}>
+                    <SidebarMenuButton
+                      isActive={active}
+                      tooltip={link.label}
+                      render={<Link href={link.href} />}
                     >
                       <link.icon />
                       <span>{link.label}</span>

@@ -83,6 +83,17 @@ export function NewPins({ pins }: { pins: NewPin[] }) {
           ))}
         </ol>
       )}
+
+      <p className="mt-3 border-t pt-3 text-[11px] leading-relaxed text-muted-foreground">
+        Pins that violate the{" "}
+        <Link
+          href="/community/guidelines"
+          className="text-primary transition-colors hover:underline"
+        >
+          Community Guidelines
+        </Link>{" "}
+        will be removed by the system.
+      </p>
     </div>
   )
 }

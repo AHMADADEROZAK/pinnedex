@@ -5,13 +5,14 @@ import { Connection, PublicKey } from "@solana/web3.js"
 import * as z from "zod"
 
 import { connectToDatabase } from "@/lib/mongodb"
-import { verifySession } from "@/lib/dal"
+import { verifySession, requireAdmin } from "@/lib/dal"
 import { enforceRateLimit } from "@/features/security"
 import { presaleConfig } from "@/features/presale/config"
 import { resolveRpcEndpoint } from "@/features/solana/server"
 import { communityConfig } from "@/features/community/config"
 import { Post } from "@/features/community/models/Post"
 import { Comment } from "@/features/community/models/Comment"
+import { deleteFile } from "@/lib/minio-client"
 import { type FormState } from "@/lib/definitions"
 
 const PinnedSchema = z.object({
@@ -228,4 +229,23 @@ export async function toggleLike(postId: string) {
   await post.save()
 
   revalidatePath("/community")
+}
+
+export async function deletePost(postId: string) {
+  await requireAdmin()
+
+  await connectToDatabase()
+
+  const post = await Post.findByIdAndDelete(postId).exec()
+  if (!post) return
+
+  await Promise.allSettled(
+    (post.images ?? []).map((key) => deleteFile(key).catch(() => {})),
+  )
+
+  await Comment.deleteMany({ postId }).exec()
+
+  revalidatePath("/community")
+  revalidatePath("/community/[postId]")
+  revalidatePath("/admin/pins")
 }

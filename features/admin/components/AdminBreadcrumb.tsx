@@ -15,6 +15,7 @@ const titles: Record<string, string> = {
   "": "Dashboard",
   users: "Users",
   purchases: "Purchases",
+  pins: "Community Pins",
   bans: "Bans",
 };
 
