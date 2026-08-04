@@ -2,7 +2,7 @@ import { NextResponse } from "next/server"
 
 import { enforceRateLimit } from "@/features/security"
 import { getSessionUser } from "@/lib/dal"
-import { getPresignedUploadUrl } from "@/lib/minio-client"
+import { getPresignedUploadUrl, objectKeyExt } from "@/lib/minio-client"
 import { communityConfig } from "@/features/community/config"
 import { nanoid } from "nanoid"
 
@@ -25,7 +25,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Invalid request body." }, { status: 400 })
   }
 
-  const { fileName, contentType, fileSize } = body as {
+  const { contentType, fileSize } = body as {
     fileName: string
     contentType: string
     fileSize: number
@@ -39,7 +39,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Image too large." }, { status: 400 })
   }
 
-  const ext = fileName.split(".").pop() ?? "bin"
+  const ext = objectKeyExt(contentType)
   const key = `community/${user._id}/${nanoid(12)}.${ext}`
 
   const presignedUrl = await getPresignedUploadUrl(key)

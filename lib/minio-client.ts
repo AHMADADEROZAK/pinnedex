@@ -34,8 +34,32 @@ export async function uploadFile({
   })
 }
 
+const extToContentType: Record<string, string> = {
+  png: "image/png",
+  jpg: "image/jpeg",
+  jpeg: "image/jpeg",
+  webp: "image/webp",
+  gif: "image/gif",
+}
+
+export const contentTypeToExt: Record<string, string> = {
+  "image/jpeg": "jpg",
+  "image/png": "png",
+  "image/webp": "webp",
+}
+
+export function objectKeyExt(contentType: string) {
+  return contentTypeToExt[contentType] ?? "png"
+}
+
 export async function getPresignedDownloadUrl(key: string, expiry = 60 * 60) {
-  return s3Client.presignedGetObject(bucketName, key, expiry)
+  // Force a safe image content-type on every served object so the browser
+  // never renders an object as text/html or image/svg+xml (prevents stored XSS).
+  const ext = key.split(".").pop()?.toLowerCase() ?? "png"
+  const contentType = extToContentType[ext] ?? "image/png"
+  return s3Client.presignedGetObject(bucketName, key, expiry, {
+    "response-content-type": contentType,
+  })
 }
 
 export async function deleteFile(key: string) {
