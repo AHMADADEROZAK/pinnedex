@@ -1,23 +1,25 @@
-"use client";
-
 import Link from "next/link";
-import { usePathname } from "next/navigation";
 import { PinIcon } from "lucide-react";
 
 import { ConnectWallet } from "@/features/wallet/components/ConnectWallet";
 import { WalletBalance } from "@/features/wallet/components/WalletBalance";
 import { ThemeToggle } from "@/features/theme/components/ThemeToggle";
-import { cn } from "@/lib/utils";
+import { getSessionUser } from "@/lib/dal";
+import { HeaderNav, type HeaderLink } from "./HeaderNav";
 
-const navLinks = [
-  { href: "/community", label: "Community" },
-  { href: "/presale", label: "Presale" },
-  { href: "/leaderboard", label: "Leaderboard" },
-  { href: "/profile", label: "Profile" },
-];
+export async function Header() {
+  const user = await getSessionUser();
 
-export function Header() {
-  const pathname = usePathname();
+  const navLinks: (HeaderLink & { auth?: boolean })[] = [
+    { href: "/community", label: "Community", auth: true },
+    { href: "/presale", label: "Presale" },
+    { href: "/leaderboard", label: "Leaderboard" },
+    { href: "/profile", label: "Profile", auth: true },
+  ];
+
+  const visibleLinks = user
+    ? navLinks
+    : navLinks.filter((link) => !link.auth);
 
   return (
     <header className="sticky top-0 z-50 flex items-center justify-between gap-4 border-b bg-background px-8 py-2">
@@ -28,20 +30,7 @@ export function Header() {
             Pinnedex
           </h1>
         </Link>
-        <nav className="flex items-center gap-1 text-sm">
-          {navLinks.map((link) => (
-            <Link
-              key={link.href}
-              href={link.href}
-              className={cn(
-                "rounded-md px-3 py-1.5 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground",
-                pathname.startsWith(link.href) && "bg-muted font-medium text-foreground",
-              )}
-            >
-              {link.label}
-            </Link>
-          ))}
-        </nav>
+        <HeaderNav links={visibleLinks} />
       </div>
       <div className="flex items-center gap-2">
         <WalletBalance />

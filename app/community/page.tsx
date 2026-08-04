@@ -1,6 +1,8 @@
 import { Header } from "@/features/app-shell"
 import { PinDialog } from "@/features/community/components/PinDialog"
-import { PostFeed } from "@/features/community/components/PostFeed"
+import { CommunitySearch } from "@/features/community/components/CommunitySearch"
+import { PopularPins } from "@/features/community/components/PopularPins"
+import { NewPins } from "@/features/community/components/NewPins"
 import type { PostData } from "@/features/community/components/PostCard"
 import { communityConfig } from "@/features/community/config"
 import { presaleConfig } from "@/features/presale"
@@ -63,23 +65,60 @@ export default async function CommunityPage() {
     }),
   )
 
+  const popular = postData
+    .map((p) => ({
+      _id: p._id,
+      content: p.content,
+      userName: p.userName,
+      userEmail: p.userEmail,
+      likesCount: p.likesCount,
+      commentCount: p.commentCount,
+    }))
+    .filter((p) => p.likesCount + p.commentCount > 0)
+    .sort(
+      (a, b) =>
+        b.likesCount + b.commentCount - (a.likesCount + a.commentCount),
+    )
+    .slice(0, 5)
+
+  const newPins = postData
+    .slice(0, 5)
+    .map((p) => ({
+      _id: p._id,
+      content: p.content,
+      userName: p.userName,
+      userEmail: p.userEmail,
+      createdAt: p.createdAt,
+    }))
+
   return (
     <div className="flex min-h-svh flex-col">
       <Header />
-      <main className="mx-auto flex w-full max-w-2xl flex-1 flex-col gap-6 p-6">
-        <div className="flex items-center justify-between">
-          <h1 className="font-heading text-2xl font-semibold tracking-tight">
-            Community
-          </h1>
-          {user && (
-            <PinDialog
-              feeSol={communityConfig.feeSol}
-              collectionWallet={presaleConfig.collectionWallet}
-            />
-          )}
-        </div>
+      <main className="mx-auto grid w-full max-w-7xl flex-1 gap-4 p-4 lg:grid-cols-[5fr_11fr_4fr]">
+        <aside className="sticky top-14 hidden self-start lg:block">
+          <NewPins pins={newPins} />
+        </aside>
 
-        <PostFeed posts={postData} />
+        <div className="flex min-w-0 flex-col gap-6">
+          <div className="flex items-center justify-between">
+            <h1 className="font-heading text-2xl font-semibold tracking-tight">
+              Community
+            </h1>
+
+            {/* SEARCH */}
+            {user && (
+              <PinDialog
+                feeSol={communityConfig.feeSol}
+                collectionWallet={presaleConfig.collectionWallet}
+              />
+            )}
+          </div>
+
+          <CommunitySearch posts={postData} />
+        </div>
+        <aside className="sticky top-14 hidden self-start lg:block">
+          <PopularPins pins={popular} />
+        </aside>
       </main>
     </div>
   )

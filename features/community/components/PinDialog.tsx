@@ -260,14 +260,24 @@ export function PinDialog({ feeSol, collectionWallet }: PinDialogProps) {
 
   return (
     <AlertDialog open={open} onOpenChange={handleOpenChange}>
-      <AlertDialogTrigger
-        render={
-          <Button size="sm" className="gap-1.5 px-8">
-            <PinIcon className="size-4" />
-            Pinned
-          </Button>
-        }
-      />
+      <Tooltip>
+        <TooltipTrigger
+          render={
+            <AlertDialogTrigger
+              render={
+                <Button
+                  variant={"ghost"}
+                  size={"icon"}
+                  className="gap-1.5 rounded-full transition-colors hover:bg-[#9945FF]/10"
+                >
+                  <PinIcon className="size-6 rotate-45 text-primary" />
+                </Button>
+              }
+            />
+          }
+        />
+        <TooltipContent>Create pinned content</TooltipContent>
+      </Tooltip>
       <AlertDialogContent size="default" className="overflow-hidden p-0">
         {/* Header */}
         <AlertDialogHeader className="space-y-0 border-b px-5 py-4 text-left">

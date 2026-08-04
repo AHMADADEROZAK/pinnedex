@@ -3,16 +3,35 @@
 import { useEffect, useState } from "react";
 
 export function PresaleCountdown({ end }: { end: Date }) {
-  const [now, setNow] = useState(() => Date.now());
+  const [now, setNow] = useState<number | null>(null);
 
   useEffect(() => {
-    const id = setInterval(() => setNow(Date.now()), 1000);
-    return () => clearInterval(id);
+    const update = () => setNow(Date.now());
+    const id = setInterval(update, 1000);
+    const first = window.setTimeout(update, 50);
+    return () => {
+      clearInterval(id);
+      window.clearTimeout(first);
+    };
   }, []);
 
-  const diff = end.getTime() - now;
-
   const pad = (n: number) => String(Math.max(0, n)).padStart(2, "0");
+
+  if (now === null) {
+    return (
+      <div className="flex items-center gap-3">
+        <CountdownUnit value="--" label="Days" />
+        <span className="text-lg text-muted-foreground">:</span>
+        <CountdownUnit value="--" label="Hours" />
+        <span className="text-lg text-muted-foreground">:</span>
+        <CountdownUnit value="--" label="Min" />
+        <span className="text-lg text-muted-foreground">:</span>
+        <CountdownUnit value="--" label="Sec" />
+      </div>
+    );
+  }
+
+  const diff = end.getTime() - now;
 
   if (diff <= 0) {
     return (

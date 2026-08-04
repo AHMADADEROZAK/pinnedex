@@ -1,6 +1,5 @@
 "use server"
 
-import { redirect } from "next/navigation"
 import { revalidatePath } from "next/cache"
 import { Connection, PublicKey } from "@solana/web3.js"
 import * as z from "zod"
@@ -84,7 +83,7 @@ export async function pinned(
 
   revalidatePath("/community")
 
-  redirect("/community")
+  return undefined
 }
 
 function toPublicKey(address: string): PublicKey | null {
