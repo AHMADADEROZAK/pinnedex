@@ -5,16 +5,58 @@ import { redirect } from "next/navigation";
 import { connectToDatabase } from "@/lib/mongodb";
 import { createSession, deleteSession } from "@/lib/session";
 import { enforceRateLimit } from "@/features/security";
+import { verifyLoginPayment, verifyRegistrationPayment } from "@/features/presale/server/verify";
+import { presaleConfig } from "@/features/presale/config";
 import {
   LoginServerSchema,
   SignupServerSchema,
   type FormState,
 } from "@/lib/definitions";
 import { User, type UserRole } from "@/features/auth/models/User";
+import { LoginPayment } from "@/features/auth/models/LoginPayment";
+import * as z from "zod";
 
 const rateLimited = (): FormState => ({
   message: "Too many requests. Please wait a minute.",
 });
+
+const EmailCheckSchema = z.object({
+  email: z.email({ error: "Please enter a valid email." }).trim(),
+});
+
+export type EmailCheckResult =
+  | { exists: true }
+  | { exists: false; error: string };
+
+export async function checkEmail(
+  state: EmailCheckResult | undefined,
+  formData: FormData,
+): Promise<EmailCheckResult> {
+  const limit = await enforceRateLimit();
+  if (!limit.allowed) {
+    return { exists: false, error: "Too many requests. Please wait a minute." };
+  }
+
+  const validated = EmailCheckSchema.safeParse({
+    email: formData.get("email"),
+  });
+
+  if (!validated.success) {
+    return {
+      exists: false,
+      error: validated.error.flatten().fieldErrors.email?.[0] ?? "Invalid email.",
+    };
+  }
+
+  await connectToDatabase();
+
+  const user = await User.findOne({ email: validated.data.email }).exec();
+  if (!user) {
+    return { exists: false, error: "No account found with this email." };
+  }
+
+  return { exists: true };
+}
 
 function roleForEmail(email: string): UserRole {
   const admins = (process.env.ADMIN_EMAILS ?? "")
@@ -32,6 +74,7 @@ export async function signup(state: FormState, formData: FormData) {
     name: formData.get("name"),
     email: formData.get("email"),
     password: formData.get("password"),
+    signature: formData.get("signature"),
   });
 
   if (!validatedFields.success) {
@@ -40,7 +83,7 @@ export async function signup(state: FormState, formData: FormData) {
     };
   }
 
-  const { name, email, password } = validatedFields.data;
+  const { name, email, password, signature } = validatedFields.data;
 
   await connectToDatabase();
 
@@ -49,8 +92,30 @@ export async function signup(state: FormState, formData: FormData) {
     return { errors: { email: ["An account with this email already exists."] } };
   }
 
+  const usedTx = signature
+    ? await User.findOne({ registrationTx: signature }).exec()
+    : null;
+  if (usedTx) {
+    return {
+      errors: { signature: ["This transaction signature has already been used."] },
+    };
+  }
+
+  if (presaleConfig.collectionWallet) {
+    const payment = await verifyRegistrationPayment(signature);
+    if (!payment.ok) {
+      return { errors: { signature: [payment.error] } };
+    }
+  }
+
   const role = roleForEmail(email);
-  const user = new User({ name, email, passwordHash: password, role });
+  const user = new User({
+    name,
+    email,
+    passwordHash: password,
+    role,
+    registrationTx: signature || undefined,
+  });
   await user.save();
 
   await createSession(user._id.toString(), role);
@@ -64,6 +129,7 @@ export async function login(state: FormState, formData: FormData) {
   const validatedFields = LoginServerSchema.safeParse({
     email: formData.get("email"),
     password: formData.get("password"),
+    signature: formData.get("signature"),
   });
 
   if (!validatedFields.success) {
@@ -72,7 +138,7 @@ export async function login(state: FormState, formData: FormData) {
     };
   }
 
-  const { email, password } = validatedFields.data;
+  const { email, password, signature } = validatedFields.data;
 
   await connectToDatabase();
 
@@ -84,6 +150,26 @@ export async function login(state: FormState, formData: FormData) {
   if (user.passwordHash !== password) {
     return { errors: { password: ["Incorrect password."] } };
   }
+
+  const usedPayment = await LoginPayment.findOne({ txSignature: signature }).exec();
+  if (usedPayment) {
+    return {
+      errors: { signature: ["This transaction signature has already been used."] },
+    };
+  }
+
+  if (presaleConfig.collectionWallet) {
+    const payment = await verifyLoginPayment(signature);
+    if (!payment.ok) {
+      return { errors: { signature: [payment.error] } };
+    }
+  }
+
+  const loginPayment = new LoginPayment({
+    txSignature: signature,
+    userId: user._id,
+  });
+  await loginPayment.save();
 
   await createSession(user._id.toString(), user.role);
   redirect("/profile");

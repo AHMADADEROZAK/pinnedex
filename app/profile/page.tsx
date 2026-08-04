@@ -12,6 +12,7 @@ import { connectToDatabase } from "@/lib/mongodb";
 import { getSessionUser } from "@/lib/dal";
 import { Purchase } from "@/features/presale/models/Purchase";
 import { getPresaleUsdPrices } from "@/features/presale";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 
 export default async function ProfilePage() {
   const user = await getSessionUser();
@@ -39,16 +40,28 @@ export default async function ProfilePage() {
   const totalTokens = purchases.reduce((sum, p) => sum + p.tokenAllocation, 0);
   const totalSol = purchases.reduce((sum, p) => sum + p.solLamports, 0);
 
+  const initials = user.name
+    .split(" ")
+    .slice(0, 2)
+    .map((n) => n[0])
+    .join("")
+    .toUpperCase();
+
   return (
     <div className="flex min-h-svh flex-col">
       <Header />
       <main className="mx-auto flex w-full max-w-2xl flex-1 flex-col gap-6 p-6">
         <div className="flex items-start justify-between gap-4">
-          <div>
-            <h1 className="font-heading text-2xl font-semibold tracking-tight">
-              {user.name}
-            </h1>
-            <p className="text-sm text-muted-foreground">{user.email}</p>
+          <div className="flex items-center gap-3">
+            <Avatar size="lg">
+              <AvatarFallback>{initials}</AvatarFallback>
+            </Avatar>
+            <div>
+              <h1 className="font-heading text-2xl font-semibold tracking-tight">
+                {user.name}
+              </h1>
+              <p className="text-sm text-muted-foreground">{user.email}</p>
+            </div>
           </div>
           <div className="flex items-center gap-2">
             {user.role === "admin" ? (

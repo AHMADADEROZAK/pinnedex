@@ -1,18 +1,14 @@
 "use client";
 
-import { useSyncExternalStore } from "react";
-
-const subscribe = (callback: () => void) => {
-  const id = setInterval(callback, 1000);
-  return () => clearInterval(id);
-};
+import { useEffect, useState } from "react";
 
 export function PresaleCountdown({ end }: { end: Date }) {
-  const now = useSyncExternalStore(
-    subscribe,
-    () => Date.now(),
-    () => 0,
-  );
+  const [now, setNow] = useState(() => Date.now());
+
+  useEffect(() => {
+    const id = setInterval(() => setNow(Date.now()), 1000);
+    return () => clearInterval(id);
+  }, []);
 
   const diff = end.getTime() - now;
 

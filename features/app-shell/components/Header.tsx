@@ -10,6 +10,7 @@ import { ThemeToggle } from "@/features/theme/components/ThemeToggle";
 import { cn } from "@/lib/utils";
 
 const navLinks = [
+  { href: "/community", label: "Community" },
   { href: "/presale", label: "Presale" },
   { href: "/leaderboard", label: "Leaderboard" },
   { href: "/profile", label: "Profile" },
@@ -19,12 +20,12 @@ export function Header() {
   const pathname = usePathname();
 
   return (
-    <header className="flex items-center justify-between gap-4 border-b px-8 py-2">
+    <header className="sticky top-0 z-50 flex items-center justify-between gap-4 border-b bg-background px-8 py-2">
       <div className="flex items-center gap-6">
         <Link href="/" className="flex items-center gap-2">
           <PinIcon className="size-5 text-primary" />
           <h1 className="font-heading text-lg font-semibold tracking-tight">
-            pinnedex
+            Pinnedex
           </h1>
         </Link>
         <nav className="flex items-center gap-1 text-sm">

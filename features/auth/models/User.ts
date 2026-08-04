@@ -13,6 +13,7 @@ export interface UserDocument extends Document {
   passwordHash: string;
   role: UserRole;
   wallets: UserWallet[];
+  registrationTx?: string;
   createdAt: Date;
 }
 
@@ -31,6 +32,7 @@ const userSchema = new Schema<UserDocument>(
     passwordHash: { type: String, required: true },
     role: { type: String, enum: ["user", "admin"], default: "user", index: true },
     wallets: { type: [userWalletSchema], default: [] },
+    registrationTx: { type: String, sparse: true, unique: true },
   },
   { timestamps: true },
 );

@@ -84,3 +84,76 @@ function toPublicKey(address: string): PublicKey | null {
     return null;
   }
 }
+
+export type RegistrationPaymentResult =
+  | { ok: true; lamports: number }
+  | { ok: false; error: string };
+
+export async function verifyRegistrationPayment(
+  txSignature: string,
+): Promise<RegistrationPaymentResult> {
+  return verifyTransferToCollection(txSignature, presaleConfig.registrationFeeLamports);
+}
+
+export async function verifyLoginPayment(
+  txSignature: string,
+): Promise<RegistrationPaymentResult> {
+  return verifyTransferToCollection(txSignature, presaleConfig.loginFeeLamports);
+}
+
+async function verifyTransferToCollection(
+  txSignature: string,
+  minLamports: number,
+): Promise<RegistrationPaymentResult> {
+  const signature = txSignature.trim();
+  if (!/^[1-9A-HJ-NP-Za-km-z]{87,88}$/.test(signature)) {
+    return { ok: false, error: "Invalid transaction signature." };
+  }
+
+  const collectionPk = toPublicKey(presaleConfig.collectionWallet);
+  if (!collectionPk) {
+    return { ok: false, error: "Collection wallet is not configured." };
+  }
+
+  const connection = new Connection(resolveRpcEndpoint(), "confirmed");
+
+  const tx = await connection.getParsedTransaction(signature, {
+    maxSupportedTransactionVersion: 0,
+  });
+
+  if (!tx) {
+    return { ok: false, error: "Transaction not found. Check the signature or wait a moment." };
+  }
+
+  if (tx.meta?.err !== null) {
+    return { ok: false, error: "Transaction failed on-chain." };
+  }
+
+  const message = tx.transaction.message;
+  let lamports = 0;
+
+  for (const ix of message.instructions) {
+    if ("parsed" in ix && ix.program === "system") {
+      const parsed = ix.parsed as {
+        type?: string;
+        info?: { destination?: string; lamports?: number };
+      };
+      if (
+        parsed.type === "transfer" &&
+        parsed.info?.destination === collectionPk.toString()
+      ) {
+        lamports += parsed.info.lamports ?? 0;
+      }
+    }
+  }
+
+  const requiredSol = minLamports / 1e9;
+  if (lamports < minLamports) {
+    return {
+      ok: false,
+      error: `Payment not met. Send at least ${requiredSol} SOL to the collection wallet.`,
+    };
+  }
+
+  return { ok: true, lamports };
+}

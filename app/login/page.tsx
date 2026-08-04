@@ -1,7 +1,8 @@
 import Link from "next/link";
 
 import { Header } from "@/features/app-shell";
-import { LoginForm } from "@/features/auth";
+import { LoginForm, FeeCommitment } from "@/features/auth";
+import { presaleConfig } from "@/features/presale";
 
 export default function LoginPage() {
   return (
@@ -12,9 +13,12 @@ export default function LoginPage() {
           <h1 className="font-heading text-2xl font-semibold tracking-tight">
             Login
           </h1>
-          <p className="text-sm text-muted-foreground">Welcome back.</p>
+          <FeeCommitment />
         </div>
-        <LoginForm />
+        <LoginForm
+          feeSol={presaleConfig.loginFeeSol}
+          collectionWallet={presaleConfig.collectionWallet}
+        />
         <p className="text-center text-sm text-muted-foreground">
           No account yet?{" "}
           <Link href="/register" className="font-medium text-primary hover:underline">

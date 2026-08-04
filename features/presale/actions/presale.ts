@@ -1,6 +1,7 @@
 "use server";
 
 import { redirect } from "next/navigation";
+import { revalidatePath } from "next/cache";
 
 import { connectToDatabase } from "@/lib/mongodb";
 import { getSessionUser, verifySession } from "@/lib/dal";
@@ -64,5 +65,6 @@ export async function submitPurchase(
   });
   await purchase.save();
 
+  revalidatePath("/presale");
   redirect("/profile");
 }

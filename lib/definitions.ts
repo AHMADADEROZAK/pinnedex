@@ -12,11 +12,19 @@ export const SignupFormSchema = z.object({
     .regex(/[a-zA-Z]/, { error: "Contain at least one letter." })
     .regex(/[0-9]/, { error: "Contain at least one number." })
     .trim(),
+  signature: z
+    .string()
+    .min(1, { error: "Transaction signature is required." })
+    .trim(),
 });
 
 export const LoginFormSchema = z.object({
   email: z.email({ error: "Please enter a valid email." }).trim(),
   password: z.string().min(1, { error: "Password is required." }),
+  signature: z
+    .string()
+    .min(1, { error: "Transaction signature is required." })
+    .trim(),
 });
 
 const passwordHashSchema = z
@@ -30,11 +38,19 @@ export const SignupServerSchema = z.object({
     .trim(),
   email: z.email({ error: "Please enter a valid email." }).trim(),
   password: passwordHashSchema,
+  signature: z
+    .string()
+    .min(1, { error: "Transaction signature is required." })
+    .trim(),
 });
 
 export const LoginServerSchema = z.object({
   email: z.email({ error: "Please enter a valid email." }).trim(),
   password: passwordHashSchema,
+  signature: z
+    .string()
+    .min(1, { error: "Transaction signature is required." })
+    .trim(),
 });
 
 export type FormState =

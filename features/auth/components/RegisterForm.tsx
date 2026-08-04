@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Controller, useForm } from "react-hook-form";
+import { Controller, useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Eye, EyeOff, Loader2 } from "lucide-react";
 import * as z from "zod";
@@ -16,20 +16,34 @@ import {
 import { InputGroup, InputGroupButton, InputGroupInput } from "@/components/ui/input-group";
 import { Input } from "@/components/ui/input";
 import { signup } from "@/features/auth/actions/auth";
+import { FeePayment } from "@/features/auth/components/FeePayment";
 import { SignupFormSchema, type FormState } from "@/lib/definitions";
 import { doubleSha256Hex } from "@/lib/password";
 
 type SignupValues = z.infer<typeof SignupFormSchema>;
 
-export function RegisterForm() {
+export function RegisterForm({
+  feeSol,
+  collectionWallet,
+}: {
+  feeSol: number;
+  collectionWallet: string;
+}) {
   const [serverError, setServerError] = useState<string | null>(null);
   const [pending, setPending] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
 
   const form = useForm<SignupValues>({
     resolver: zodResolver(SignupFormSchema),
-    defaultValues: { name: "", email: "", password: "" },
+    defaultValues: {
+      name: "",
+      email: "",
+      password: "",
+      signature: collectionWallet ? "" : "dev",
+    },
   });
+
+  const signature = useWatch({ control: form.control, name: "signature" });
 
   async function onSubmit(values: SignupValues) {
     setPending(true);
@@ -39,6 +53,7 @@ export function RegisterForm() {
     formData.set("name", values.name);
     formData.set("email", values.email);
     formData.set("password", await doubleSha256Hex(values.password));
+    formData.set("signature", values.signature);
 
     const state: FormState = await signup(undefined, formData);
     setPending(false);
@@ -127,9 +142,20 @@ export function RegisterForm() {
         />
       </FieldGroup>
 
+      {collectionWallet ? (
+        <FeePayment
+          label="Registration fee"
+          feeSol={feeSol}
+          collectionWallet={collectionWallet}
+          onSignature={(sig) =>
+            form.setValue("signature", sig, { shouldValidate: true })
+          }
+        />
+      ) : null}
+
       {serverError && <p className="text-sm text-destructive">{serverError}</p>}
 
-      <Button type="submit" disabled={pending} className="w-full">
+      <Button type="submit" disabled={pending || !signature} className="w-full">
         {pending && <Loader2 className="animate-spin" />}
         {pending ? "Creating account..." : "Sign Up"}
       </Button>

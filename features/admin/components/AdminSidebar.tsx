@@ -2,9 +2,28 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutDashboard, Users, ShoppingCart, ShieldBan } from "lucide-react";
+import {
+  LayoutDashboard,
+  PinIcon,
+  ShieldBan,
+  ShoppingCart,
+  Users,
+} from "lucide-react";
 
-import { cn } from "@/lib/utils";
+import {
+  Sidebar,
+  SidebarContent,
+  SidebarFooter,
+  SidebarGroup,
+  SidebarGroupContent,
+  SidebarGroupLabel,
+  SidebarHeader,
+  SidebarMenu,
+  SidebarMenuButton,
+  SidebarMenuItem,
+  SidebarRail,
+} from "@/components/ui/sidebar";
+import { LogoutButton } from "@/features/auth/components/LogoutButton";
 
 const links = [
   { href: "/admin", label: "Dashboard", icon: LayoutDashboard },
@@ -17,29 +36,62 @@ export function AdminSidebar({ basePath }: { basePath: string }) {
   const pathname = usePathname();
 
   return (
-    <aside className="flex w-full flex-col gap-1 border-r bg-muted/30 p-3 lg:w-52">
-      <p className="px-3 pb-2 pt-1 text-xs font-medium uppercase tracking-wide text-muted-foreground">
-        Admin
-      </p>
-      <nav className="flex flex-col gap-1">
-        {links.map((link) => {
-          const href = `${basePath}${link.href.replace("/admin", "")}`;
-          const active = pathname === href || pathname.startsWith(`${href}/`);
-          return (
-            <Link
-              key={link.href}
-              href={href}
-              className={cn(
-                "flex items-center gap-2 rounded-md px-3 py-2 text-sm text-muted-foreground transition-colors hover:bg-muted hover:text-foreground",
-                active && "bg-muted font-medium text-foreground",
-              )}
+    <Sidebar collapsible="icon">
+      <SidebarHeader>
+        <SidebarMenu>
+          <SidebarMenuItem>
+            <SidebarMenuButton
+              size="lg"
+              render={<Link href={basePath} />}
+              className="data-active:bg-transparent data-active:text-sidebar-accent-foreground"
             >
-              <link.icon className="size-4" />
-              {link.label}
-            </Link>
-          );
-        })}
-      </nav>
-    </aside>
+              <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
+                <PinIcon className="size-4" />
+              </div>
+              <div className="grid flex-1 text-left text-sm leading-tight">
+                <span className="truncate font-heading font-semibold">
+                  Pinnedex
+                </span>
+                <span className="truncate text-xs">Admin</span>
+              </div>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+        </SidebarMenu>
+      </SidebarHeader>
+      <SidebarContent>
+        <SidebarGroup>
+          <SidebarGroupLabel>Admin</SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              {links.map((link) => {
+                const href = `${basePath}${link.href.replace("/admin", "")}`;
+                const active =
+                  pathname === href || pathname.startsWith(`${href}/`);
+                return (
+                  <SidebarMenuItem key={link.href}>
+                    <SidebarMenuButton
+                      isActive={active}
+                      tooltip={link.label}
+                      render={<Link href={href} />}
+                    >
+                      <link.icon />
+                      <span>{link.label}</span>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                );
+              })}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+      </SidebarContent>
+      <SidebarFooter>
+        <SidebarMenu>
+          <SidebarMenuItem>
+            <LogoutButton className="w-full" />
+          </SidebarMenuItem>
+        </SidebarMenu>
+      </SidebarFooter>
+      <SidebarRail />
+    </Sidebar>
   );
 }

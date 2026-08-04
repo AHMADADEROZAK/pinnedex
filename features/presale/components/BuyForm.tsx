@@ -142,7 +142,11 @@ export function BuyForm({
   }
 
   return (
-    <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col gap-4">
+    <>
+      <form
+        onSubmit={form.handleSubmit(onSubmit)}
+        className="flex flex-col gap-4"
+      >
       <div className="flex flex-col gap-3">
         <Controller
           name="tokens"
@@ -264,11 +268,12 @@ export function BuyForm({
       )}
 
       {serverError && <p className="text-sm text-destructive">{serverError}</p>}
+      </form>
 
-      <div className="border-t pt-4">
+      <div className="mt-4 border-t pt-4">
         <p className="mb-2 text-sm text-muted-foreground">Linked wallets:</p>
         <WalletManager linkedWallets={linkedWallets} />
       </div>
-    </form>
+    </>
   );
 }

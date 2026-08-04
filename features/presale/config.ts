@@ -19,6 +19,18 @@ export const presaleConfig = {
   get maxTokens() {
     return num(process.env.PRESALE_MAX_TOKENS, 10000);
   },
+  get registrationFeeSol() {
+    return num(process.env.REGISTRATION_FEE_SOL, 0.025);
+  },
+  get registrationFeeLamports() {
+    return Math.round(this.registrationFeeSol * 1e9);
+  },
+  get loginFeeSol() {
+    return num(process.env.LOGIN_FEE_SOL, 0.002);
+  },
+  get loginFeeLamports() {
+    return Math.round(this.loginFeeSol * 1e9);
+  },
   get start() {
     const v = process.env.PRESALE_START;
     return v ? new Date(v) : null;
