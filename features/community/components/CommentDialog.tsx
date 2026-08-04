@@ -158,15 +158,16 @@ export function CommentDialog({ postId, count = 0 }: { postId: string; count?: n
       <Tooltip>
         <TooltipTrigger
           render={
-            <button
+            <Button
               type="button"
+              variant="ghost"
               onClick={() => setOpen(true)}
               aria-label="Comment"
-              className="inline-flex items-center gap-1 rounded-md px-2 py-1 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+              className="inline-flex items-center gap-1 rounded-full px-2 py-1 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
             >
               <MessageCircle className="size-4" />
               {count > 0 && <span className="text-xs">{count}</span>}
-            </button>
+            </Button>
           }
         />
         <TooltipContent>Comment</TooltipContent>

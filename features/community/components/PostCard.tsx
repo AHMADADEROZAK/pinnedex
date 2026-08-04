@@ -2,6 +2,7 @@
 
 import { useState } from "react"
 import { useRouter } from "next/navigation"
+import Link from "next/link"
 import { ExternalLink, Heart, Eye } from "lucide-react"
 
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
@@ -13,6 +14,7 @@ import {
 import { CommentDialog } from "@/features/community/components/CommentDialog"
 import { toggleLike } from "@/features/community/actions/community"
 import { cn } from "@/lib/utils"
+import { Button } from "@/components/ui/button"
 
 export interface PostData {
   _id: string
@@ -95,18 +97,19 @@ export function PostCard({ post }: { post: PostData }) {
           <Tooltip>
             <TooltipTrigger
               render={
-                <button
+                <Button
                   type="button"
+                  variant="ghost"
                   onClick={handleLike}
                   aria-label="Like"
                   className={cn(
-                    "inline-flex items-center gap-1 rounded-md px-2 py-1 transition-colors hover:bg-muted",
+                    "inline-flex items-center gap-1 px-2 py-1 transition-colors hover:bg-muted rounded-full",
                     liked ? "text-red-500" : "text-muted-foreground",
                   )}
                 >
                   <Heart className={cn("size-4", liked && "fill-current")} />
                   {likesCount > 0 && <span className="text-xs">{likesCount}</span>}
-                </button>
+                </Button>
               }
             />
             <TooltipContent>Like</TooltipContent>
@@ -117,14 +120,15 @@ export function PostCard({ post }: { post: PostData }) {
           <Tooltip>
             <TooltipTrigger
               render={
-                <button
+                <Button
                   type="button"
+                  variant="ghost"
                   onClick={() => router.push(`/community/${post._id}`)}
                   aria-label="View"
-                  className="inline-flex items-center rounded-md px-2 py-1 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+                  className="inline-flex items-center rounded-full px-2 py-1 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
                 >
                   <Eye className="size-4" />
-                </button>
+                </Button>
               }
             />
             <TooltipContent>View</TooltipContent>
@@ -133,15 +137,17 @@ export function PostCard({ post }: { post: PostData }) {
           <Tooltip>
             <TooltipTrigger
               render={
-                <a
-                  href={post.explorerTxUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
+                <Button
+                  nativeButton={false}
+                  variant="ghost"
+                  render={
+                    <Link href={post.explorerTxUrl} target="_blank" rel="noopener noreferrer" />
+                  }
                   aria-label="Scan"
-                  className="inline-flex items-center rounded-md px-2 py-1 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+                  className="inline-flex items-center rounded-full px-2 py-1 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
                 >
                   <ExternalLink className="size-4" />
-                </a>
+                </Button>
               }
             />
             <TooltipContent>Scan</TooltipContent>
