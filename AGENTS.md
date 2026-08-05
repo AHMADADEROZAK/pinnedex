@@ -31,7 +31,7 @@ Full reference: `https://docs.dexscreener.com/api/reference`
 - `/<wallet>/member` = Telegram connect page; user inputs phone + pays `TELEGRAM_CONNECT_FEE_SOL` (0.025) → gets private bot link `t.me/<bot>?start=CONNECT_<code>` (15m TTL)
 - Bot webhook `POST /api/telegram/update` validates `x-telegram-bot-api-secret-token` (separate `TELEGRAM_WEBHOOK_SECRET`, NOT the bot token — `:` is rejected) → processes `/start CONNECT_<code>` → saves `telegramChatId` on Subscription
 - `instrumentation.ts` auto-registers webhook from `TELEGRAM_PUBLIC_URL` at boot; manual: `GET /api/telegram/setup`
-- `sendTakeoverAlerts()` broadcasts CTO takeovers to active member chat IDs (webhook verified live @pinnedex_bot)
+- `sendTelegramAlert()` broadcasts CTO/boost/profile to active member chat IDs as a rich HTML photo+caption (token icon, chain, address, amount, claim date, description, links, dex link); `sendTakeoverAlerts()` kept for plain-text broadcasts (webhook verified live @pinnedex_bot)
 - Admin "Send test alert" button on `/<ADMIN_PATH>/dex-usage` (TestTelegramAlert + sendTestTelegramAlert action)
 - proxy.ts preserves incoming query params (chain/tab) through the `/member` rewrite
 

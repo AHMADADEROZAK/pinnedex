@@ -13,6 +13,54 @@ Versi mengikuti [Semantic Versioning](https://semver.org/).
 
 ---
 
+## 2026-08-06
+
+### Added
+- **PINDEX Signal** — dashboard anggota di path wallet `/<wallet>/*` (rewrite
+  ke `/member/*`):
+  - Halaman: Dashboard, Boosts (Latest/Top + filter chain), Profiles,
+    Takeovers, Metas, Search, Alerts (filter type + chain + legend icon),
+    Pairs & Tokens detail.
+  - **Whale Detector & Robinhood Radar** (member-only) di `/<wallet>/signals`;
+    halaman gratis menampilkan upsell SubscribeForm.
+- **Subscriptions** (MongoDB): langganan mingguan 0.05 SOL / bulanan
+  0.15 SOL, bayar via `sendTransaction` + verifikasi on-chain.
+- **DexScreener data pipeline**:
+  - Typed REST client + TTL cache + budget rate-limiter (per-endpoint &
+    global cap, reservasi ingestor).
+  - **WebSocket ingestor** (4 stream: CTO, profiles, boosts, ads) → `DexEvent`
+    model (TTL 24 jam) + dashboard admin `dex-usage`.
+- **Telegram alerts**:
+  - Bot `@pinnedex_bot`, webhook `POST /api/telegram/update` dengan
+    `x-telegram-bot-api-secret-token` (`TELEGRAM_WEBHOOK_SECRET`).
+  - Connect flow: telepon + bayar 0.025 SOL → link privat `t.me/<bot>?start=CONNECT_<code>`
+    (TTL 15 menit) → `/start` menyimpan `telegramChatId`.
+  - Alert dikirim sebagai **HTML foto+caption data lengkap** (icon token,
+    chain, address, amount, claim date, description, links, link dex).
+  - Admin "Send test alert" di `/<ADMIN_PATH>/dex-usage`.
+- **WorldPhoneCode**: combobox kode negara + nomor telepon (242 negara dari
+  gist, tersimpan di MongoDB).
+- **Brand link buttons**: DexScreener (dex.png), X, Telegram, TikTok, Reddit,
+  Instagram — `icon-xs` ghost buttons; fallback `LinkIcon` untuk link lain.
+- **Halaman Features** (`/features`): daftar fitur aplikasi + menu header
+  "Features".
+
+### Changed
+- **Dark theme saja**: `forcedTheme="dark"`, hotkey + toggle tema
+  dihapus/dinonaktifkan (tidak bisa ganti system/light).
+- **Header**: menu "Signal" tampil bila wallet sudah ter-link; perbaikan
+  duplicate-key.
+- `proxy.ts`: rewrite `/member` mempertahankan query params (chain/tab) dan
+  set cookie `member-wallet`.
+- Icon type pada tabel Alerts: Profile kini `FilePen`, legend ikon
+  (Rocket=Boost, Handshake=Takeover, dll).
+
+### Fixed
+- Serialisasi `DexEvent` → props client (hanya plain object).
+- `Button` base-ui: `nativeButton=false` saat render `<a>`.
+
+---
+
 ## 2026-08-05
 
 ### Added

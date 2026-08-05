@@ -3,7 +3,7 @@ import WebSocket from "ws";
 import { connectToDatabase } from "@/lib/mongodb";
 import { DexEvent } from "@/features/signal/models/DexEvent";
 import type { DexEventType } from "@/features/signal/models/DexEvent";
-import { sendTelegram, sendTakeoverAlerts } from "@/features/signal/server/telegram";
+import { sendTelegramAlert } from "@/features/signal/server/telegram";
 
 type StreamKey = "token-profiles" | "community-takeovers" | "token-boosts" | "ads";
 
@@ -193,31 +193,12 @@ class DexIngestor {
     tokenAddress: string,
     raw: Record<string, unknown>,
   ): void {
-    const short = tokenAddress.slice(0, 8);
-    let text = "";
+    if (!tokenAddress) return;
 
     if (eventType === "community-takeover") {
-      const claimDate = raw.claimDate
-        ? new Date(String(raw.claimDate)).toLocaleDateString()
-        : "?";
-      const desc = String(raw.description ?? "");
-      text = `[CTO] ${short}... claimed ${claimDate}\n${desc}`;
-    } else if (eventType === "boost") {
-      const amount = Number(raw.amount ?? 0);
-      const total = Number(raw.totalAmount ?? 0);
-      const desc = String(raw.description ?? "");
-      text = `[BOOST] ${short}... +$${amount.toFixed(0)} (total $${total.toFixed(0)})\n${desc}`;
-    } else if (eventType === "token-profile") {
-      const desc = String(raw.description ?? "");
-      text = `[PROFILE] ${short}...\n${desc}`;
-    }
-
-    if (text && text.length > 20) {
-      if (eventType === "community-takeover") {
-        sendTakeoverAlerts(text).catch(() => {});
-      } else {
-        sendTelegram(text).catch(() => {});
-      }
+      sendTelegramAlert(eventType, raw).catch(() => {});
+    } else if (eventType === "boost" || eventType === "token-profile") {
+      sendTelegramAlert(eventType, raw).catch(() => {});
     }
   }
 }
