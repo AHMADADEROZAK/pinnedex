@@ -9,7 +9,22 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { BoostRow } from "@/features/signal/components/BoostRow";
+import {
+  AlertRow,
+  type AlertItem,
+} from "@/features/signal/components/AlertRow";
+import { fetchMarketIndex } from "@/features/signal/lib/market";
+
+function toPayload(boost: Boost): Record<string, unknown> {
+  return {
+    icon: boost.icon,
+    url: boost.url,
+    description: boost.description,
+    links: boost.links,
+    amount: boost.amount,
+    totalAmount: boost.totalAmount,
+  };
+}
 
 export default async function BoostsPage({
   searchParams,
@@ -36,6 +51,19 @@ export default async function BoostsPage({
     return true;
   });
 
+  const market = await fetchMarketIndex(unique);
+
+  const items: AlertItem[] = unique.map((boost) => ({
+    id: `${boost.chainId}-${boost.tokenAddress}`,
+    type: "boost",
+    chainId: boost.chainId,
+    tokenAddress: boost.tokenAddress,
+    payload: toPayload(boost),
+    market: market[boost.tokenAddress?.toLowerCase() ?? ""]
+      ? { ...market[boost.tokenAddress.toLowerCase()] }
+      : undefined,
+  }));
+
   const base = wallet ? `/${wallet}` : "";
 
   return (
@@ -45,7 +73,7 @@ export default async function BoostsPage({
           Token Boosts
         </h1>
         <p className="text-sm text-muted-foreground">
-          {unique.length} unique tokens
+          {items.length} unique tokens
         </p>
       </div>
 
@@ -88,7 +116,7 @@ export default async function BoostsPage({
         </div>
       </div>
 
-      {unique.length === 0 ? (
+      {items.length === 0 ? (
         <p className="text-sm text-muted-foreground">
           No token boosts available
         </p>
@@ -97,19 +125,20 @@ export default async function BoostsPage({
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead className="w-32">Chain</TableHead>
+                <TableHead className="w-10">Type</TableHead>
+                <TableHead className="w-20">Chain</TableHead>
                 <TableHead>Token</TableHead>
-                <TableHead className="w-20">Amount</TableHead>
-                <TableHead>Description</TableHead>
-                <TableHead className="w-40">Links</TableHead>
+                <TableHead className="w-24">Link</TableHead>
+                <TableHead className="w-20">Boost</TableHead>
+                <TableHead className="w-24">Price</TableHead>
+                <TableHead className="w-24">24h Vol</TableHead>
+                <TableHead className="w-24">MarketCap</TableHead>
+                <TableHead className="w-24">Age</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
-              {unique.map((boost) => (
-                <BoostRow
-                  key={`${boost.tokenAddress}-${boost.chainId}`}
-                  boost={boost}
-                />
+              {items.map((item) => (
+                <AlertRow key={item.id} item={item} />
               ))}
             </TableBody>
           </Table>

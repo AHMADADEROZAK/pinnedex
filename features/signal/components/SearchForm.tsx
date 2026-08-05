@@ -4,7 +4,12 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { Search } from "lucide-react";
 
-import { Button } from "@/components/ui/button";
+import {
+  InputGroup,
+  InputGroupAddon,
+  InputGroupButton,
+  InputGroupInput,
+} from "@/components/ui/input-group";
 
 export function SearchForm({ wallet }: { wallet: string }) {
   const router = useRouter();
@@ -16,24 +21,29 @@ export function SearchForm({ wallet }: { wallet: string }) {
       onSubmit={(e) => {
         e.preventDefault();
         if (q.trim()) {
-          router.push(
-            `${base}/search?q=${encodeURIComponent(q.trim())}`,
-          );
+          router.push(`${base}/search?q=${encodeURIComponent(q.trim())}`);
         }
       }}
-      className="flex gap-2"
+      className="max-w-md"
     >
-      <input
-        type="text"
-        value={q}
-        onChange={(e) => setQ(e.target.value)}
-        placeholder="Search pairs by token name, symbol, or address..."
-        className="flex h-9 w-full max-w-md rounded-md border bg-background px-3 py-1 text-sm"
-      />
-      <Button type="submit" size="sm" className="gap-1">
-        <Search className="size-4" />
-        Search
-      </Button>
+      <InputGroup>
+        <InputGroupAddon>
+          <Search className="size-4" />
+        </InputGroupAddon>
+        <InputGroupInput
+          value={q}
+          onChange={(e) => setQ(e.target.value)}
+          placeholder="Search pairs by token name, symbol, or address..."
+        />
+        <InputGroupButton
+          type="submit"
+          className="mr-1"
+          aria-label="Search"
+        >
+          <Search className="size-4" />
+          Search
+        </InputGroupButton>
+      </InputGroup>
     </form>
   );
 }

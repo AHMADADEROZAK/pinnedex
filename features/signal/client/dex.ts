@@ -94,15 +94,19 @@ export function getTokens(
 }
 
 export function searchPairs(query: string): Promise<Pair[]> {
-  return cachedFetch<Pair[]>(
+  return cachedFetch<{ pairs?: Pair[] }>(
     "search",
     `/latest/dex/search?q=${encodeURIComponent(query)}`,
-  );
+  ).then((res) => res.pairs ?? []);
 }
 
 export function getPair(chainId: string, pairId: string): Promise<Pair> {
-  return cachedFetch<Pair>(
+  return cachedFetch<{ pairs?: Pair[] }>(
     "token-pairs",
     `/latest/dex/pairs/${chainId}/${pairId}`,
-  );
+  ).then((res) => {
+    const pair = res.pairs?.[0];
+    if (!pair) throw new Error(`Pair not found: ${chainId}/${pairId}`);
+    return pair;
+  });
 }

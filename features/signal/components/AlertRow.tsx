@@ -1,6 +1,8 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { Copy, FilePen, Handshake, Megaphone, Rocket } from "lucide-react";
 
 import { TableCell, TableRow } from "@/components/ui/table";
@@ -14,8 +16,8 @@ export interface AlertItem {
   chainId: string;
   tokenAddress: string;
   payload: Record<string, unknown>;
-  seenAt: string;
   market?: TokenMarket;
+  seenAt?: string;
 }
 
 interface TokenMarket {
@@ -110,6 +112,12 @@ export function AlertRow({ item }: { item: AlertItem }) {
         ? payload.totalAmount
         : null;
 
+  const pathname = usePathname();
+  const base = pathname.split("/").slice(0, -1).join("/");
+  const previewHref = base
+    ? `${base}/search?q=${encodeURIComponent(item.tokenAddress)}`
+    : "";
+
   function handleCopy() {
     navigator.clipboard.writeText(item.tokenAddress);
     setCopied(true);
@@ -155,6 +163,15 @@ export function AlertRow({ item }: { item: AlertItem }) {
               <Copy className="size-3" />
             )}
           </button>
+          {previewHref && (
+            <Link
+              href={previewHref}
+              className="shrink-0 rounded bg-muted px-1.5 py-0.5 text-[10px] text-muted-foreground hover:bg-primary/10 hover:text-primary"
+              title="Search preview"
+            >
+              Preview
+            </Link>
+          )}
         </div>
       </TableCell>
       <TableCell>
@@ -218,11 +235,13 @@ export function AlertRow({ item }: { item: AlertItem }) {
             : "—"}
         </span>
       </TableCell>
-      <TableCell>
-        <span className="whitespace-nowrap text-xs text-muted-foreground">
-          {new Date(item.seenAt).toLocaleString()}
-        </span>
-      </TableCell>
+      {item.seenAt && (
+        <TableCell>
+          <span className="whitespace-nowrap text-xs text-muted-foreground">
+            {new Date(item.seenAt).toLocaleString()}
+          </span>
+        </TableCell>
+      )}
     </TableRow>
   );
 }
