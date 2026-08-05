@@ -50,18 +50,18 @@ export default async function BoostsPage({
       </div>
 
       <div className="flex flex-wrap items-center gap-3">
-        <div className="inline-flex h-9 items-center gap-1 rounded-4xl bg-muted p-[3px] text-muted-foreground">
+        <div className="inline-flex h-9 items-center gap-1 rounded-3xl bg-muted p-0.75 text-muted-foreground">
           <Link
             href={`${base}/boosts`}
             data-active={!isTop || undefined}
-            className="relative inline-flex h-[calc(100%-1px)] flex-1 items-center justify-center gap-1.5 rounded-xl border border-transparent px-2 py-1 text-sm font-medium whitespace-nowrap transition-all hover:text-foreground data-active:bg-background data-active:text-foreground"
+            className="relative inline-flex h-[calc(100%-1px)] flex-1 items-center justify-center gap-1.5 rounded-2xl border border-transparent px-2 py-1 text-sm font-medium whitespace-nowrap transition-all hover:text-foreground data-active:bg-background data-active:text-foreground"
           >
             Latest
           </Link>
           <Link
             href={`${base}/boosts?tab=top`}
             data-active={isTop || undefined}
-            className="relative inline-flex h-[calc(100%-1px)] flex-1 items-center justify-center gap-1.5 rounded-xl border border-transparent px-2 py-1 text-sm font-medium whitespace-nowrap transition-all hover:text-foreground data-active:bg-background data-active:text-foreground"
+            className="relative inline-flex h-[calc(100%-1px)] flex-1 items-center justify-center gap-1.5 rounded-2xl border border-transparent px-2 py-1 text-sm font-medium whitespace-nowrap transition-all hover:text-foreground data-active:bg-background data-active:text-foreground"
           >
             Top
           </Link>

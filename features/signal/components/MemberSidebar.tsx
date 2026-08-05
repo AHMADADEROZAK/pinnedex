@@ -17,6 +17,7 @@ import {
   Clock,
   Globe,
   TagPlusIcon,
+  FilePenIcon,
 } from "lucide-react";
 
 import {
@@ -53,7 +54,7 @@ export function MemberSidebar({
   const navItems = [
     { href: base, label: "Dashboard", icon: LayoutDashboard },
     { href: `${base}/boosts`, label: "Boosts", icon: Rocket },
-    { href: `${base}/profiles`, label: "Profiles", icon: TagPlusIcon },
+    { href: `${base}/profiles`, label: "Profiles", icon: FilePenIcon },
     { href: `${base}/takeovers`, label: "Takeovers", icon: Handshake },
     { href: `${base}/metas`, label: "Metas", icon: BarChart3 },
     { href: `${base}/search`, label: "Search", icon: Search },

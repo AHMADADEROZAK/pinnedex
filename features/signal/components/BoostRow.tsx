@@ -1,8 +1,9 @@
 "use client";
 
-import { ExternalLink } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { TableCell, TableRow } from "@/components/ui/table";
+import { DexScreener } from "@/features/signal/components/DexScreener";
+import { BrandOrLink } from "@/features/signal/components/brands";
 import type { Boost } from "@/features/signal/client";
 
 function toIconUrl(icon: string) {
@@ -50,25 +51,9 @@ export function BoostRow({ boost }: { boost: Boost }) {
       <TableCell>
         <div className="flex gap-1">
           {boost.links?.map((link, i) => (
-            <a
-              key={i}
-              href={link.url}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-[10px] text-primary hover:underline"
-            >
-              {link.type ?? "link"}
-            </a>
+            <BrandOrLink key={i} type={link.type} url={link.url} />
           ))}
-          <a
-            href={boost.url}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center gap-0.5 text-[10px] text-primary hover:underline"
-          >
-            ds
-            <ExternalLink className="size-2.5" />
-          </a>
+          <DexScreener href={boost.url} />
         </div>
       </TableCell>
     </TableRow>

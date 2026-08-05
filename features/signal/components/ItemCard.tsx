@@ -1,9 +1,11 @@
 "use client";
 
 import { useState } from "react";
-import { Copy, ExternalLink, Globe, MessageCircle, Video } from "lucide-react";
+import { Copy } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
+import { DexScreener } from "@/features/signal/components/DexScreener";
+import { BrandOrLink } from "@/features/signal/components/brands";
 import {
   Card,
   CardAction,
@@ -38,16 +40,6 @@ function toIconUrl(icon: string) {
   if (icon.startsWith("http")) return icon;
   return `https://cdn.dexscreener.com/cms/images/${icon}?width=64&height=64&fit=crop&quality=95&format=auto`;
 }
-
-const linkIcons: Record<string, React.ReactNode> = {
-  twitter: (
-    <svg className="size-2.5" viewBox="0 0 24 24" fill="currentColor">
-      <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
-    </svg>
-  ),
-  telegram: <MessageCircle className="size-2.5" />,
-  tiktok: <Video className="size-2.5" />,
-};
 
 export function ItemCard({
   chainId,
@@ -91,7 +83,7 @@ export function ItemCard({
         </CardAction>
         <div className="flex items-center gap-2">
           {iconUrl && (
-            <div className="flex shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-primary/10 to-muted ring-2 ring-card">
+            <div className="flex shrink-0 items-center justify-center rounded-full bg-linear-to-br from-primary/10 to-muted ring-2 ring-card">
               <img
                 src={iconUrl}
                 alt=""
@@ -126,37 +118,23 @@ export function ItemCard({
         </CardDescription>
       </CardHeader>
 
-      {description && (
-        <CardContent className="text-xs text-muted-foreground">
+      {description ? (
+        <CardContent className="flex-1 text-xs text-muted-foreground">
           <p className="line-clamp-2 leading-snug">{description}</p>
         </CardContent>
+      ) : (
+        <div className="flex flex-1 flex-col justify-center gap-1.5 px-(--card-spacing)">
+          <div className="h-1.5 w-full rounded-full bg-muted" />
+          <div className="h-1.5 w-2/3 rounded-full bg-muted" />
+        </div>
       )}
 
       <CardFooter className="flex-wrap gap-1">
         {Array.isArray(links) &&
           links.map((link, i) => (
-            <a
-              key={i}
-              href={link.url}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-0.5 rounded border bg-secondary/20 px-1 py-0.5 text-[9px] text-muted-foreground hover:text-foreground"
-            >
-              {link.type
-                ? (linkIcons[link.type] ?? <Globe className="size-2.5" />)
-                : <Globe className="size-2.5" />}
-              {link.label ?? link.type ?? "link"}
-            </a>
+            <BrandOrLink key={i} type={link.type} url={link.url} />
           ))}
-        <a
-          href={url}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="inline-flex items-center gap-0.5 text-[9px] text-primary hover:underline"
-        >
-          ds
-          <ExternalLink className="size-2" />
-        </a>
+        <DexScreener href={url} />
       </CardFooter>
     </Card>
   );
