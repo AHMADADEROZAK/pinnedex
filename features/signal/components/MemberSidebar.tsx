@@ -53,13 +53,13 @@ export function MemberSidebar({
 
   const navItems = [
     { href: base, label: "Dashboard", icon: LayoutDashboard },
+    { href: `${base}/alerts`, label: "Alerts", icon: Bell },
     { href: `${base}/boosts`, label: "Boosts", icon: Rocket },
-    { href: `${base}/profiles`, label: "Profiles", icon: FilePenIcon },
     { href: `${base}/takeovers`, label: "Takeovers", icon: Handshake },
+    { href: `${base}/profiles`, label: "Profiles", icon: FilePenIcon },
     { href: `${base}/metas`, label: "Metas", icon: BarChart3 },
     { href: `${base}/search`, label: "Search", icon: Search },
     { href: `${base}/signals`, label: "Signals", icon: Activity, member: true },
-    { href: `${base}/alerts`, label: "Alerts", icon: Bell },
     { href: `${base}/member`, label: "Telegram", icon: Send, member: true },
   ];
 

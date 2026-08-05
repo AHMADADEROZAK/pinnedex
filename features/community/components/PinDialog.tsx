@@ -283,7 +283,7 @@ export function PinDialog({ feeSol, collectionWallet }: PinDialogProps) {
         <AlertDialogHeader className="space-y-0 border-b px-5 py-4 text-left">
           <div className="flex w-full items-start justify-between gap-3">
             <div className="flex items-center gap-2.5">
-              <div className="flex size-8 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-[#9945FF] to-[#14F195]">
+              <div className="flex size-8 shrink-0 items-center justify-center rounded-full bg-linear-to-br from-[#9945FF] to-[#14F195]">
                 <PinIcon className="size-4 text-white" />
               </div>
               <div>
