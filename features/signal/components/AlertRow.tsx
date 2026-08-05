@@ -15,6 +15,17 @@ export interface AlertItem {
   tokenAddress: string;
   payload: Record<string, unknown>;
   seenAt: string;
+  market?: TokenMarket;
+}
+
+interface TokenMarket {
+  symbol?: string;
+  name?: string;
+  priceUsd?: number;
+  volume24h?: number;
+  marketCap?: number;
+  fdv?: number;
+  pairCreatedAt?: number;
 }
 
 interface EventPayload {
@@ -53,6 +64,35 @@ function formatDate(value?: string) {
   const d = new Date(value);
   if (Number.isNaN(d.getTime())) return "";
   return d.toLocaleDateString();
+}
+
+function formatPrice(value?: number) {
+  if (value == null || Number.isNaN(value)) return "—";
+  if (value >= 1) return `$${value.toFixed(value >= 100 ? 0 : 4)}`;
+  if (value > 0) return `$${value.toPrecision(4)}`;
+  return "—";
+}
+
+function formatCompact(value?: number) {
+  if (value == null || Number.isNaN(value)) return "—";
+  const abs = Math.abs(value);
+  const sign = value < 0 ? "-" : "";
+  if (abs >= 1e9) return `${sign}$${(value / 1e9).toFixed(2)}B`;
+  if (abs >= 1e6) return `${sign}$${(value / 1e6).toFixed(2)}M`;
+  if (abs >= 1e3) return `${sign}$${(value / 1e3).toFixed(2)}K`;
+  return `$${value.toFixed(0)}`;
+}
+
+function formatAge(createdAt?: number) {
+  if (!createdAt) return "—";
+  const ms = Date.now() - createdAt;
+  if (ms < 0) return "now";
+  const mins = Math.floor(ms / 60000);
+  if (mins < 60) return `${mins}m`;
+  const hours = Math.floor(mins / 60);
+  if (hours < 48) return `${hours}h`;
+  const days = Math.floor(hours / 24);
+  return `${days}d`;
 }
 
 export function AlertRow({ item }: { item: AlertItem }) {
@@ -149,6 +189,34 @@ export function AlertRow({ item }: { item: AlertItem }) {
             </span>
           )}
         </div>
+      </TableCell>
+      <TableCell>
+        <span className="whitespace-nowrap text-xs text-muted-foreground">
+          {item.market?.priceUsd != null
+            ? formatPrice(item.market.priceUsd)
+            : "—"}
+        </span>
+      </TableCell>
+      <TableCell>
+        <span className="whitespace-nowrap text-xs text-muted-foreground">
+          {item.market?.volume24h != null
+            ? formatCompact(item.market.volume24h)
+            : "—"}
+        </span>
+      </TableCell>
+      <TableCell>
+        <span className="whitespace-nowrap text-xs text-muted-foreground">
+          {item.market?.marketCap != null
+            ? formatCompact(item.market.marketCap)
+            : "—"}
+        </span>
+      </TableCell>
+      <TableCell>
+        <span className="whitespace-nowrap text-xs text-muted-foreground">
+          {item.market?.pairCreatedAt
+            ? formatAge(item.market.pairCreatedAt)
+            : "—"}
+        </span>
       </TableCell>
       <TableCell>
         <span className="whitespace-nowrap text-xs text-muted-foreground">
