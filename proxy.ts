@@ -4,8 +4,10 @@ import type { NextRequest } from "next/server";
 import { decrypt } from "@/lib/session";
 import { adminBasePath } from "@/lib/admin-path";
 
-const protectedRoutes = ["/app", "/profile"];
+const protectedRoutes = ["/profile"];
 const authRoutes = ["/login", "/register"];
+
+const WALLET_RE = /^\/([1-9A-HJ-NP-Za-km-z]{32,44})(\/.*)?$/;
 
 export async function proxy(request: NextRequest) {
   const path = request.nextUrl.pathname;
@@ -21,6 +23,11 @@ export async function proxy(request: NextRequest) {
   );
   const isAuthRoute = authRoutes.includes(path);
 
+  const walletMatch = path.match(WALLET_RE);
+  const isMemberSecretPath = walletMatch !== null;
+  const isMemberInternal =
+    path === "/member" || path.startsWith("/member/");
+
   if (isSecretPath) {
     if (!session?.userId) {
       return NextResponse.redirect(new URL("/login", request.url));
@@ -32,7 +39,33 @@ export async function proxy(request: NextRequest) {
     return NextResponse.rewrite(new URL(target, request.url));
   }
 
+  if (isMemberSecretPath) {
+    if (!session?.userId) {
+      return NextResponse.redirect(new URL("/login", request.url));
+    }
+    const wallet = walletMatch![1];
+    const rest = walletMatch![2] ?? "";
+
+    const url = new URL(`/member${rest}`, request.url);
+    for (const [key, value] of request.nextUrl.searchParams) {
+      url.searchParams.set(key, value);
+    }
+    url.searchParams.set("w", wallet);
+
+    const res = NextResponse.rewrite(url);
+    res.cookies.set("member-wallet", wallet, {
+      httpOnly: true,
+      sameSite: "lax",
+      path: "/",
+    });
+    return res;
+  }
+
   if (isAdminInternal) {
+    return new NextResponse("Not found", { status: 404 });
+  }
+
+  if (isMemberInternal) {
     return new NextResponse("Not found", { status: 404 });
   }
 

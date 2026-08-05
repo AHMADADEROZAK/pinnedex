@@ -110,9 +110,14 @@ async function verifyCommunityPayment(
 
   const connection = new Connection(resolveRpcEndpoint(), "confirmed")
 
-  const tx = await connection.getParsedTransaction(signature, {
-    maxSupportedTransactionVersion: 0,
-  })
+  let tx: Awaited<ReturnType<typeof connection.getParsedTransaction>> = null
+  for (let i = 0; i < 8; i++) {
+    tx = await connection.getParsedTransaction(signature, {
+      maxSupportedTransactionVersion: 0,
+    })
+    if (tx) break
+    await new Promise((r) => setTimeout(r, 1000 * (i + 1)))
+  }
 
   if (!tx) {
     return { ok: false, error: "Transaction not found. Check the signature or wait a moment." }

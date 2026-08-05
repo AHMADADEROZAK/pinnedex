@@ -10,10 +10,15 @@ import { HeaderNav, type HeaderLink } from "./HeaderNav";
 export async function Header() {
   const user = await getSessionUser();
 
+  const firstWallet = user?.wallets?.[0]?.address;
+
   const navLinks: (HeaderLink & { auth?: boolean })[] = [
     { href: "/community", label: "Community" },
     { href: "/presale", label: "Presale" },
     { href: "/leaderboard", label: "Leaderboard" },
+    ...(firstWallet
+      ? [{ href: `/${firstWallet}`, label: "Signal", auth: true }]
+      : []),
     { href: "/profile", label: "Profile", auth: true },
   ];
 

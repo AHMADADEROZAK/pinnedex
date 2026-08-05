@@ -2,7 +2,7 @@ import { ALLOWED_METHODS, resolveRpcEndpoint } from "@/features/solana/server";
 import { enforceRateLimit } from "@/features/security";
 
 export async function POST(request: Request) {
-  const limit = await enforceRateLimit(30);
+  const limit = await enforceRateLimit(60);
   if (!limit.allowed) {
     return Response.json(
       { error: "Too many requests. Please wait a minute." },

@@ -266,9 +266,9 @@ export function PinDialog({ feeSol, collectionWallet }: PinDialogProps) {
             <AlertDialogTrigger
               render={
                 <Button
-                  variant={"ghost"}
+                  variant={"outline"}
                   size={"icon"}
-                  className="gap-1.5 rounded-full transition-colors hover:bg-[#9945FF]/10"
+                  className="gap-1.5 rounded-full transition-colors border border-primary hover:bg-[#9945FF]/10"
                 >
                   <PinIcon className="size-6 rotate-45 text-primary" />
                 </Button>
