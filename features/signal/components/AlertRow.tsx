@@ -1,16 +1,11 @@
 "use client";
 
 import { useState } from "react";
-import {
-  Copy,
-  FilePen,
-  Handshake,
-  Megaphone,
-  Rocket,
-} from "lucide-react";
+import { Copy, FilePen, Handshake, Megaphone, Rocket } from "lucide-react";
 
 import { TableCell, TableRow } from "@/components/ui/table";
 import { DexScreener } from "@/features/signal/components/DexScreener";
+import { BrandOrLink } from "@/features/signal/components/brands";
 import type { DexEventType } from "@/features/signal";
 
 export interface AlertItem {
@@ -25,6 +20,11 @@ export interface AlertItem {
 interface EventPayload {
   icon?: string;
   url?: string;
+  description?: string;
+  amount?: number;
+  totalAmount?: number;
+  claimDate?: string;
+  impressions?: number;
   links?: { type?: string | null; label?: string | null; url: string }[];
 }
 
@@ -48,6 +48,13 @@ function toIconUrl(icon: string) {
   return `https://cdn.dexscreener.com/cms/images/${icon}?width=64&height=64&fit=crop&quality=95&format=auto`;
 }
 
+function formatDate(value?: string) {
+  if (!value) return "";
+  const d = new Date(value);
+  if (Number.isNaN(d.getTime())) return "";
+  return d.toLocaleDateString();
+}
+
 export function AlertRow({ item }: { item: AlertItem }) {
   const [copied, setCopied] = useState(false);
   const payload = (item.payload ?? {}) as EventPayload;
@@ -56,6 +63,12 @@ export function AlertRow({ item }: { item: AlertItem }) {
   const dex = payload.links?.find((l) =>
     l.type?.toLowerCase().includes("dexscreener"),
   )?.url;
+  const amount =
+    typeof payload.amount === "number"
+      ? payload.amount
+      : typeof payload.totalAmount === "number"
+        ? payload.totalAmount
+        : null;
 
   function handleCopy() {
     navigator.clipboard.writeText(item.tokenAddress);
@@ -76,20 +89,20 @@ export function AlertRow({ item }: { item: AlertItem }) {
       <TableCell>
         <span className="font-mono text-xs">{item.chainId}</span>
       </TableCell>
-      <TableCell>
+      <TableCell className="max-w-[280px]">
         <div className="flex items-center gap-2">
           {iconUrl && (
             <img
               src={iconUrl}
               alt=""
-              className="size-6 rounded-full bg-muted object-cover"
+              className="size-6 shrink-0 rounded-full bg-muted object-cover"
               onError={(e) => {
                 (e.target as HTMLImageElement).style.display = "none";
               }}
             />
           )}
-          <span className="font-mono text-xs">
-            {item.tokenAddress.slice(0, 12)}...
+          <span className="truncate font-mono text-xs">
+            {item.tokenAddress}
           </span>
           <button
             onClick={handleCopy}
@@ -102,8 +115,38 @@ export function AlertRow({ item }: { item: AlertItem }) {
               <Copy className="size-3" />
             )}
           </button>
-          {(eventUrl || dex) && (
-            <DexScreener href={dex ?? eventUrl} />
+        </div>
+      </TableCell>
+      <TableCell>
+        <div className="flex items-center gap-1">
+          {(eventUrl || dex) && <DexScreener href={dex ?? eventUrl} />}
+          {payload.links &&
+            payload.links.length > 0 &&
+            payload.links.map((l, i) => (
+              <BrandOrLink
+                key={`${l.url}-${i}`}
+                type={l.type ?? null}
+                url={l.url}
+              />
+            ))}
+        </div>
+      </TableCell>
+      <TableCell>
+        <div className="flex flex-col items-start gap-1">
+          {item.type === "boost" && amount != null && (
+            <span className="rounded bg-primary/10 px-1.5 py-0.5 text-[11px] font-semibold text-primary">
+              {amount} SOL
+            </span>
+          )}
+          {item.type === "community-takeover" && payload.claimDate && (
+            <span className="rounded bg-muted px-1.5 py-0.5 text-[11px] font-medium text-muted-foreground">
+              Claim {formatDate(payload.claimDate)}
+            </span>
+          )}
+          {item.type === "ad" && typeof payload.impressions === "number" && (
+            <span className="rounded bg-muted px-1.5 py-0.5 text-[11px] font-medium text-muted-foreground">
+              {payload.impressions.toLocaleString()} imp
+            </span>
           )}
         </div>
       </TableCell>

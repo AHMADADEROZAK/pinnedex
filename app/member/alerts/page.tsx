@@ -164,6 +164,8 @@ export default async function AlertsPage({
                 <TableHead className="w-10">Type</TableHead>
                 <TableHead className="w-20">Chain</TableHead>
                 <TableHead>Token</TableHead>
+                <TableHead className="w-24">Link</TableHead>
+                <TableHead className="w-20">Boost</TableHead>
                 <TableHead className="w-40">Time</TableHead>
               </TableRow>
             </TableHeader>
