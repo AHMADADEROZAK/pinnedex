@@ -10,6 +10,7 @@ import {
   Users,
   MessagesSquare,
   Globe,
+  Activity,
 } from "lucide-react";
 
 import {
@@ -32,6 +33,7 @@ const links = [
   { href: "/admin/users", label: "Users", icon: Users },
   { href: "/admin/purchases", label: "Purchases", icon: ShoppingCart },
   { href: "/admin/pins", label: "Community Pins", icon: MessagesSquare },
+  { href: "/admin/dex-usage", label: "Dex Usage", icon: Activity },
   { href: "/admin/bans", label: "Bans", icon: ShieldBan },
 ];
 

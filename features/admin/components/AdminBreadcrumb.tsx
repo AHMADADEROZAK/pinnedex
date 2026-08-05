@@ -17,6 +17,7 @@ const titles: Record<string, string> = {
   purchases: "Purchases",
   pins: "Community Pins",
   bans: "Bans",
+  "dex-usage": "Dex Usage",
 };
 
 export function AdminBreadcrumb({ basePath }: { basePath: string }) {
