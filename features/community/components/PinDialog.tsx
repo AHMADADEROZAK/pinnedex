@@ -126,6 +126,7 @@ export function PinDialog({ feeSol, collectionWallet }: PinDialogProps) {
       setShowLocation(false)
       setServerError(null)
       setPending(false)
+      requestLocation()
     }
   }
 
