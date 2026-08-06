@@ -3,18 +3,9 @@ import { FilePen, Handshake, Megaphone, Rocket } from "lucide-react";
 
 import { connectToDatabase } from "@/lib/mongodb";
 import { hasActiveMembership, DexEvent } from "@/features/signal";
-import {
-  Table,
-  TableBody,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
 import { ErrorState } from "@/features/signal/components/ErrorState";
-import {
-  AlertRow,
-  type AlertItem,
-} from "@/features/signal/components/AlertRow";
+import type { AlertItem } from "@/features/signal/components/AlertRow";
+import { SignalDataTable } from "@/features/signal/components/AlertDataTable";
 import type { DexEventDocument, DexEventType } from "@/features/signal";
 import { fetchMarketIndex } from "@/features/signal/lib/market";
 
@@ -163,29 +154,7 @@ export default async function AlertsPage({
       ) : items.length === 0 ? (
         <p className="text-sm text-muted-foreground">No alerts yet</p>
       ) : (
-        <div className="rounded-md border">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead className="w-10">Type</TableHead>
-                <TableHead className="w-20">Chain</TableHead>
-                <TableHead>Token</TableHead>
-                <TableHead className="w-24">Link</TableHead>
-                <TableHead className="w-20">Boost</TableHead>
-                <TableHead className="w-24">Price</TableHead>
-                <TableHead className="w-24">24h Vol</TableHead>
-                <TableHead className="w-24">MarketCap</TableHead>
-                <TableHead className="w-24">Age</TableHead>
-                <TableHead className="w-40">Time</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {items.map((item) => (
-                <AlertRow key={item.id} item={item} />
-              ))}
-            </TableBody>
-          </Table>
-        </div>
+        <SignalDataTable items={items} showTime />
       )}
     </div>
   );

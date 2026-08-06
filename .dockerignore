@@ -1,0 +1,26 @@
+# dependencies
+node_modules
+.pnp
+.pnp.js
+.yarn/install-state.gz
+
+# next.js build output
+.next
+out
+.turbo
+
+# docker / env (never copy secrets into image)
+Dockerfile
+docker-compose.yml
+docker-compose.yaml
+.env
+.env.*
+!.env.example
+.dockerignore
+
+# misc
+.git
+.gitignore
+*.md
+coverage
+npm-debug.log*

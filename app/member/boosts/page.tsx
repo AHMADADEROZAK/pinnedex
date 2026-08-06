@@ -2,17 +2,8 @@ import Link from "next/link";
 
 import { getLatestBoosts, getTopBoosts } from "@/features/signal/client";
 import type { Boost } from "@/features/signal/client";
-import {
-  Table,
-  TableBody,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import {
-  AlertRow,
-  type AlertItem,
-} from "@/features/signal/components/AlertRow";
+import type { AlertItem } from "@/features/signal/components/AlertRow";
+import { SignalDataTable } from "@/features/signal/components/AlertDataTable";
 import { fetchMarketIndex } from "@/features/signal/lib/market";
 
 function toPayload(boost: Boost): Record<string, unknown> {
@@ -121,28 +112,7 @@ export default async function BoostsPage({
           No token boosts available
         </p>
       ) : (
-        <div className="rounded-md border">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead className="w-10">Type</TableHead>
-                <TableHead className="w-20">Chain</TableHead>
-                <TableHead>Token</TableHead>
-                <TableHead className="w-24">Link</TableHead>
-                <TableHead className="w-20">Boost</TableHead>
-                <TableHead className="w-24">Price</TableHead>
-                <TableHead className="w-24">24h Vol</TableHead>
-                <TableHead className="w-24">MarketCap</TableHead>
-                <TableHead className="w-24">Age</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {items.map((item) => (
-                <AlertRow key={item.id} item={item} />
-              ))}
-            </TableBody>
-          </Table>
-        </div>
+        <SignalDataTable items={items} />
       )}
     </div>
   );

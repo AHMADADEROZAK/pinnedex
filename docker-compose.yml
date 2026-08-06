@@ -1,0 +1,31 @@
+name: pin-dex
+
+services:
+  app:
+    build:
+      context: .
+      args:
+        NEXT_PUBLIC_SOLANA_NETWORK: ${NEXT_PUBLIC_SOLANA_NETWORK:-devnet}
+    container_name: pin-dex-app
+    restart: unless-stopped
+    # Bind to localhost only; a reverse proxy on the host (127.0.0.1:3112)
+    # is the public entry point. See note below on TELEGRAM_PUBLIC_URL.
+    ports:
+      - "127.0.0.1:3112:3112"
+    env_file:
+      - .env
+    environment:
+      NODE_ENV: production
+      PORT: "3112"
+      HOSTNAME: "0.0.0.0"
+      # MongoDB + Minio run as separate stacks; connect over the shared
+      # external network using their service/container names.
+      MONGODB_URI: mongodb://${MONGO_URI_CREDS}@mongo:27017/pin-dex?authSource=admin
+      MINIO_ENDPOINT: minio
+      MINIO_PORT: "9000"
+    networks:
+      - core_network
+
+networks:
+  core_network:
+    external: true

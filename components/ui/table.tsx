@@ -1,9 +1,15 @@
 import { cn } from "@/lib/utils"
 import { type ComponentPropsWithoutRef } from "react"
 
-function Table({ className, ...props }: ComponentPropsWithoutRef<"table">) {
+function Table({
+  className,
+  wrapperClassName,
+  ...props
+}: ComponentPropsWithoutRef<"table"> & { wrapperClassName?: string }) {
   return (
-    <div className="relative w-full overflow-auto">
+    <div
+      className={cn("relative w-full overflow-auto", wrapperClassName)}
+    >
       <table
         data-slot="table"
         className={cn("w-full caption-bottom text-sm", className)}
