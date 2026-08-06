@@ -3,10 +3,13 @@ FROM node:24-alpine AS base
 
 WORKDIR /app
 
-# Dependencies: uses the lockfile that matches npm (package-lock.json exists).
+# Dependencies.
+# The committed lockfile is Windows-generated and omitted Linux optional
+# platform deps, so strict `npm ci` fails as "out of sync" on Linux. Use
+# `npm install` so npm reconciles the lockfile for the host platform.
 FROM base AS deps
 COPY package.json package-lock.json* ./
-RUN npm ci
+RUN npm install --no-audit --no-fund
 
 # ---- builder ----
 FROM base AS builder
