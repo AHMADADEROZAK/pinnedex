@@ -10,6 +10,27 @@ const s3Client = new Minio.Client({
   useSSL: process.env.MINIO_USE_SSL === "true",
 })
 
+// Public client for presigned URLs: the browser must reach Minio via its
+// public endpoint (e.g. https://s3.example.com), NOT the Docker-internal
+// hostname. The Host header is part of the SigV4 signature, so presigned
+// URLs must be generated against the public endpoint to validate.
+const publicUrl = process.env.MINIO_PUBLIC_URL?.trim()
+let publicClient: Minio.Client | null = null
+if (publicUrl) {
+  try {
+    const u = new URL(publicUrl)
+    publicClient = new Minio.Client({
+      endPoint: u.hostname,
+      port: u.port ? Number(u.port) : u.protocol === "https:" ? 443 : 80,
+      accessKey: process.env.MINIO_ACCESS_KEY ?? "",
+      secretKey: process.env.MINIO_SECRET_KEY ?? "",
+      useSSL: u.protocol === "https:",
+    })
+  } catch {
+    // fall back to the internal client below
+  }
+}
+
 const bucketName = process.env.MINIO_BUCKET ?? "pinnedex"
 
 export async function createBucketIfNotExists() {
@@ -52,12 +73,16 @@ export function objectKeyExt(contentType: string) {
   return contentTypeToExt[contentType] ?? "png"
 }
 
+function presignClient() {
+  return publicClient ?? s3Client
+}
+
 export async function getPresignedDownloadUrl(key: string, expiry = 60 * 60) {
   // Force a safe image content-type on every served object so the browser
   // never renders an object as text/html or image/svg+xml (prevents stored XSS).
   const ext = key.split(".").pop()?.toLowerCase() ?? "png"
   const contentType = extToContentType[ext] ?? "image/png"
-  return s3Client.presignedGetObject(bucketName, key, expiry, {
+  return presignClient().presignedGetObject(bucketName, key, expiry, {
     "response-content-type": contentType,
   })
 }
@@ -75,5 +100,5 @@ export async function getPresignedUploadUrl(
   expiry = 60 * 60,
 ) {
   await createBucketIfNotExists()
-  return s3Client.presignedPutObject(bucketName, key, expiry)
+  return presignClient().presignedPutObject(bucketName, key, expiry)
 }
