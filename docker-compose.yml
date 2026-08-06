@@ -19,9 +19,9 @@ services:
       PORT: "3112"
       HOSTNAME: "0.0.0.0"
       # MongoDB + Minio run as separate stacks; connect over the shared
-      # external network using their service/container names.
-      MONGODB_URI: mongodb://${MONGO_URI_CREDS}@mongo:27017/pin-dex?authSource=admin
-      MINIO_ENDPOINT: minio
+      # external network using their container names.
+      MONGODB_URI: mongodb://${MONGO_URI_CREDS}@container-mongo:27017/pin-dex?authSource=admin
+      MINIO_ENDPOINT: container-minio
       MINIO_PORT: "9000"
     networks:
       - core_network
