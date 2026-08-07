@@ -6,9 +6,8 @@ import {
   SidebarProvider,
   SidebarTrigger,
 } from "@/components/ui/sidebar";
-import { ThemeToggle } from "@/features/theme/components/ThemeToggle";
-import { ConnectWallet } from "@/features/wallet/components/ConnectWallet";
 import { WalletBalance } from "@/features/wallet/components/WalletBalance";
+import { ConnectWallet } from "@/features/wallet/components/ConnectWallet";
 import { verifySession } from "@/lib/dal";
 import { hasActiveMembership, Subscription } from "@/features/signal";
 import { connectToDatabase } from "@/lib/mongodb";
@@ -63,7 +62,6 @@ export default async function MemberLayout({
           <div className="ml-auto flex items-center gap-2">
             <WalletBalance />
             <ConnectWallet />
-            <ThemeToggle />
           </div>
         </header>
         <div className="flex flex-1 flex-col gap-4 p-4 md:p-6">

@@ -5,7 +5,6 @@ import {
   SidebarTrigger,
 } from "@/components/ui/sidebar";
 import { AdminBreadcrumb, AdminSidebar } from "@/features/admin";
-import { ThemeToggle } from "@/features/theme/components/ThemeToggle";
 import { ConnectWallet } from "@/features/wallet/components/ConnectWallet";
 import { WalletBalance } from "@/features/wallet/components/WalletBalance";
 import { requireAdmin } from "@/lib/dal";
@@ -32,7 +31,6 @@ export default async function AdminLayout({
           <div className="ml-auto flex items-center gap-2">
             <WalletBalance />
             <ConnectWallet />
-            <ThemeToggle />
           </div>
         </header>
         <div className="flex flex-1 flex-col gap-4 p-4 md:p-6">{children}</div>

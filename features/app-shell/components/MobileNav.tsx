@@ -1,0 +1,68 @@
+"use client";
+
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { Menu, PinIcon } from "lucide-react";
+
+import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet";
+import { ConnectWallet } from "@/features/wallet/components/ConnectWallet";
+import { WalletBalance } from "@/features/wallet/components/WalletBalance";
+import type { HeaderLink } from "./HeaderNav";
+
+export function MobileNav({ links }: { links: HeaderLink[] }) {
+  const pathname = usePathname();
+
+  return (
+    <Sheet>
+      <SheetTrigger
+        render={
+          <Button
+            variant="ghost"
+            size="icon"
+            aria-label="Menu"
+            className="md:hidden"
+          >
+            <Menu className="size-5" />
+          </Button>
+        }
+      />
+      <SheetContent side="left" className="flex flex-col" showCloseButton={false}>
+        <SheetHeader>
+          <SheetTitle className="flex items-center gap-2">
+            <PinIcon className="size-5 text-primary" />
+            Pinnedex
+          </SheetTitle>
+        </SheetHeader>
+
+        <nav className="flex flex-1 flex-col gap-1 px-2">
+          {links.map((link) => (
+            <Link
+              key={link.href}
+              href={link.href}
+              className={cn(
+                "rounded-md px-3 py-2 text-sm text-muted-foreground transition-colors hover:bg-muted hover:text-foreground",
+                pathname.startsWith(link.href) &&
+                  "bg-muted font-medium text-foreground",
+              )}
+            >
+              {link.label}
+            </Link>
+          ))}
+        </nav>
+
+        <div className="flex flex-col gap-2 border-t p-4">
+          <WalletBalance />
+          <ConnectWallet />
+        </div>
+      </SheetContent>
+    </Sheet>
+  );
+}

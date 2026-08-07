@@ -25,7 +25,7 @@ export function ConnectWallet() {
 
   if (!connected) {
     return (
-      <Button onClick={handleClick} disabled={connecting} className="gap-2">
+      <Button onClick={handleClick} disabled={connecting} variant="ghost" className="gap-2">
         <Wallet className="size-4" />
         {connecting ? "Connecting..." : "Connect Wallet"}
       </Button>
@@ -33,7 +33,7 @@ export function ConnectWallet() {
   }
 
   return (
-    <Button variant="outline" onClick={handleClick} className="gap-2 font-mono">
+    <Button onClick={handleClick} className="gap-2 font-mono">
       <Wallet className="size-4" />
       <span className="size-2 rounded-full " />
       {publicKey ? shortenAddress(publicKey.toBase58()) : ""}
