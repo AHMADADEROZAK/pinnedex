@@ -18,7 +18,10 @@ FROM base AS deps
 # platform deps, so strict `npm ci` fails "out of sync" on Linux.
 # Use `npm install` so npm reconciles the lockfile for the host.
 COPY package.json package-lock.json* ./
-RUN npm install --no-audit --no-fund --no-update-notifier
+# The npm cache mount persists across builds on the host, so package
+# downloads are only fetched once ever (requires BuildKit / Docker >= 23).
+RUN --mount=type=cache,target=/root/.npm \
+  npm install --no-audit --no-fund --no-update-notifier --prefer-offline
 
 # ---- builder: compile app ----
 FROM deps AS builder
@@ -28,7 +31,11 @@ COPY . .
 ARG NEXT_PUBLIC_SOLANA_NETWORK=devnet
 ENV NEXT_PUBLIC_SOLANA_NETWORK=$NEXT_PUBLIC_SOLANA_NETWORK
 
-RUN npm run build
+# Persist Next.js's own build cache (.next/cache) + npm cache so an
+# incremental deploy only compiles the pages that actually changed.
+RUN --mount=type=cache,target=/root/.npm \
+  --mount=type=cache,target=/app/.next/cache \
+  npm run build
 
 # ---- runner: runtime image ----
 FROM node:24-alpine AS runner
