@@ -12,8 +12,9 @@ export function partyTelegramEnabled(): boolean {
 export async function sendPartyMessage(
   chatId: number | string,
   text: string,
+  parseMode?: "HTML",
 ): Promise<void> {
-  await apiPost("sendMessage", { chat_id: chatId, text });
+  await apiPost("sendMessage", { chat_id: chatId, text, parse_mode: parseMode });
 }
 
 export async function sendPartyOtpButton(
@@ -63,6 +64,7 @@ export async function sendPartyOtpPhoto(chatId: number | string, otp: string): P
   await sendPartyMessage(
     chatId,
     `👇 <b>Copy this code and paste it into the web verification:</b>\n\nYour code: <code>${otp}</code>`,
+    "HTML",
   );
 }
 
