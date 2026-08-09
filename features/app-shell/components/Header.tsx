@@ -17,6 +17,7 @@ export async function Header() {
     { href: "/community", label: "Community" },
     { href: "/presale", label: "Presale" },
     { href: "/leaderboard", label: "Leaderboard" },
+    { href: "/party-room", label: "Party Room" },
     ...(firstWallet
       ? [{ href: `/${firstWallet}`, label: "Signal", auth: true }]
       : []),

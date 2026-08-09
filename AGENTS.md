@@ -35,13 +35,23 @@ Full reference: `https://docs.dexscreener.com/api/reference`
 - Admin "Send test alert" button on `/<ADMIN_PATH>/dex-usage` (TestTelegramAlert + sendTestTelegramAlert action)
 - proxy.ts preserves incoming query params (chain/tab) through the `/member` rewrite
 
-### In Progress (P1–P7 UI Expansion)
+### Completed (P1–P7 UI Expansion)
 Porting CTO Hunter (`D:\Data\SPES-TECHNOLOGY\next-factory\cto-hunter`) UI patterns:
-- P1: Port 6 components (ItemCard, DataCard, DataTable, ErrorState, CardGridSkeleton, PageSkeleton)
-- P3: Pages: boosts (tab pills + chain filter pills, client BoostRow), profiles, takeovers, alerts
+- P1: Port 6 components (CardItem, DataCard, DataTable, ErrorState, CardGridSkeleton, PageSkeleton)
+- P3: Pages: boosts (tab pills + column filter pills, Profile Card), profiles, takeovers, alerts
 - P4: Pages: metas, search
 - P5: Detail pages: pairs, tokens
 - P7: Typecheck + lint (clean)
+
+### Completed (P8 Party Chat + Custom Server)
+Live Telegram chat inside PIN-DEX (port of `pinnedex-start` chat-core) + a custom HTTP server that is now the single boot path:
+- `features/chat` = core libs (telegram.ts, ws.ts, inference.ts, format.ts), PartyForm / PartyRoom UI, party OTP (`lib/otp.ts`, Challenge model 10m TTL, upsert by `walletAddress` + `memberId`)
+- Serve `pinnedex.ai/ws` (prime member WS) + chat WS (`/ws`, guest-since-no-admin-fee) parity; join watermark at `/fees`; purchase at `/presale` on SIM chat link
+- `server.js` hosts Next + chat WS; `npm run dev` / `start` / Docker all run `node server.js`; `.next` output mode RUNTIME (no standalone)
+- BuyForm now warns when a chat investment path exists; /presale success = "Purchase confirmed online" (record via signed TX, no redirect)
+- webhook auto-registered from `TELEGRAM_PUBLIC_URL` (max 1 webhook per bot: the chat instance, prod/Xmin follow, Office `notification` alias inbox is the fallback-derived workspace)
+- `getRaw reception`/`sendOtpImage` (chat join watermarked green, only when `TRUSTED_HOST` can reach http://+ SAN) — `new CryptoIntermediary` per message
+- Party Member chat-id saves to explicit separate conf / `PIN_` env re-use; challenge link = `t.me/<bot>?start=<uuid>`
 
 ### Key Constraints
 - No `any` type — always use proper TypeScript types
@@ -50,6 +60,8 @@ Porting CTO Hunter (`D:\Data\SPES-TECHNOLOGY\next-factory\cto-hunter`) UI patter
 - All data content built according to DexScreener API reference
 - Focus: Solana network (`chainId === "solana"`) for CTO and analysis
 - Monorepo: PIN-DEX is a Next.js 16 project with MongoDB, Solana Web3, tweetnacl
+- Boot path is always `node server.js` (Next + chat WS) — never `next start` / `next dev` directly
+- `features/chat` WS groups parallel the legacy `features/community` groups; do not cross-cap
 
 ### Target Buyers
 Paid subscribers (weekly 0.05 SOL / monthly 0.15 SOL):
@@ -64,5 +76,6 @@ Paid subscribers (weekly 0.05 SOL / monthly 0.15 SOL):
 | Signals page `/<wallet>/signals` (Whale Detector + Robinhood Radar) | Paid subscription active |
 | Telegram connect `/<wallet>/member` (0.025 SOL add-on) | Paid + subscription |
 | Telegram VIP alerts (takeover push to chat ID) | Paid (chat ID in Subscription model) |
+| `/party-room` chat (/ws WebSocket, chat investment via `/presale`) | Free — guest since no admin fee |
 <!-- END:project-context -->
 <!-- END:nextjs-agent-rules -->

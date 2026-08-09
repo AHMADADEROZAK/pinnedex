@@ -1,5 +1,3 @@
-import { redirect } from "next/navigation";
-
 import { Header } from "@/features/app-shell";
 import {
   BuyForm,
@@ -16,7 +14,7 @@ import { getSessionUser } from "@/lib/dal";
 
 export default async function PresalePage() {
   const user = await getSessionUser();
-  if (!user) redirect("/login");
+  const signedIn = Boolean(user);
 
   const active = isPresaleActive();
   const { tokenPriceUsd, solPriceUsd } = await getPresaleUsdPrices();
@@ -89,7 +87,8 @@ export default async function PresalePage() {
                 </h2>
                 <BuyForm
                   config={config}
-                  linkedWallets={user.wallets.map((w) => w.address)}
+                  linkedWallets={user?.wallets.map((w) => w.address) ?? []}
+                  signedIn={signedIn}
                 />
               </div>
             ) : (

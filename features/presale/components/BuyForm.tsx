@@ -47,9 +47,11 @@ type BuyFormValues = {
 export function BuyForm({
   config,
   linkedWallets,
+  signedIn = false,
 }: {
   config: BuyFormConfig;
   linkedWallets: string[];
+  signedIn?: boolean;
 }) {
   const { connection } = useConnection();
   const { publicKey, connected, sendTransaction } = useWallet();
@@ -57,6 +59,7 @@ export function BuyForm({
   const [sending, setSending] = useState(false);
   const [copied, setCopied] = useState(false);
   const [serverError, setServerError] = useState<string | null>(null);
+  const [success, setSuccess] = useState<string | null>(null);
   const [pending, setPending] = useState(false);
 
   const buySchema = z.object({
@@ -129,15 +132,22 @@ export function BuyForm({
   async function onSubmit(values: BuyFormValues) {
     setPending(true);
     setServerError(null);
+    setSuccess(null);
 
     const formData = new FormData();
     formData.set("signature", values.signature);
+    const wallet =
+      publicKey?.toString() ?? linkedWallets[0] ?? "";
+    if (wallet) formData.set("wallet", wallet);
 
     const state = await submitPurchase(undefined, formData);
     setPending(false);
 
     if (state?.error) {
       setServerError(state.error);
+    } else if (state?.message) {
+      setSuccess(state.message);
+      form.reset();
     }
   }
 
@@ -268,11 +278,40 @@ export function BuyForm({
       )}
 
       {serverError && <p className="text-sm text-destructive">{serverError}</p>}
+      {success && (
+        <p className="rounded-md border border-emerald-500/30 bg-emerald-500/10 p-3 text-sm text-emerald-600 dark:text-emerald-400">
+          {success}
+        </p>
+      )}
       </form>
 
       <div className="mt-4 border-t pt-4">
-        <p className="mb-2 text-sm text-muted-foreground">Linked wallets:</p>
-        <WalletManager linkedWallets={linkedWallets} />
+        {signedIn ? (
+          <>
+            <p className="mb-2 text-sm text-muted-foreground">Linked wallets:</p>
+            <WalletManager linkedWallets={linkedWallets} />
+          </>
+        ) : (
+          <div className="flex flex-col gap-2">
+            <p className="text-sm text-muted-foreground">
+              Create a free account to track your purchase and unlock member
+              tools.
+            </p>
+            <div className="flex gap-2">
+              <Button render={<a href="/register" />} nativeButton={false} className="flex-1">
+                Register
+              </Button>
+              <Button
+                render={<a href="/login" />}
+                nativeButton={false}
+                variant="outline"
+                className="flex-1"
+              >
+                Sign in
+              </Button>
+            </div>
+          </div>
+        )}
       </div>
     </>
   );

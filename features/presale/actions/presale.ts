@@ -1,10 +1,9 @@
 "use server";
 
-import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 
 import { connectToDatabase } from "@/lib/mongodb";
-import { getSessionUser, verifySession } from "@/lib/dal";
+import { getSessionUser } from "@/lib/dal";
 import { enforceRateLimit } from "@/features/security";
 import { Purchase } from "@/features/presale/models/Purchase";
 import { verifyPresaleTransaction } from "@/features/presale/server/verify";
@@ -18,8 +17,6 @@ export async function submitPurchase(
   _state: SubmitPurchaseState,
   formData: FormData,
 ): Promise<SubmitPurchaseState> {
-  await verifySession();
-
   const limit = await enforceRateLimit();
   if (!limit.allowed) return { error: "Too many requests. Please wait a minute." };
 
@@ -28,17 +25,20 @@ export async function submitPurchase(
   }
 
   const user = await getSessionUser();
-  if (!user) {
-    return { error: "User not found." };
-  }
-
-  if (user.wallets.length === 0) {
-    return { error: "Link a wallet first to buy tokens." };
-  }
 
   const signature = String(formData.get("signature") ?? "").trim();
   if (!signature) {
     return { error: "Transaction signature is required." };
+  }
+
+  const wallet = String(formData.get("wallet") ?? "").trim();
+  const buyerWallet = wallet || user?.wallets?.[0]?.address || "";
+  if (!buyerWallet) {
+    return {
+      error: user
+        ? "Link a wallet first to buy tokens."
+        : "Connect a wallet first to buy tokens.",
+    };
   }
 
   await connectToDatabase();
@@ -48,7 +48,6 @@ export async function submitPurchase(
     return { error: "This transaction has already been recorded." };
   }
 
-  const buyerWallet = user.wallets[0].address;
   const result = await verifyPresaleTransaction(signature, buyerWallet);
 
   if (!result.ok) {
@@ -56,7 +55,7 @@ export async function submitPurchase(
   }
 
   const purchase = new Purchase({
-    userId: user._id,
+    userId: user?._id ?? null,
     walletAddress: buyerWallet,
     txSignature: signature,
     solLamports: result.lamports,
@@ -66,5 +65,10 @@ export async function submitPurchase(
   await purchase.save();
 
   revalidatePath("/presale");
-  redirect("/profile");
+
+  return {
+    message: "Purchase recorded! Your tokens are locked into the allocation.",
+    tokens: result.tokens,
+    signature,
+  };
 }

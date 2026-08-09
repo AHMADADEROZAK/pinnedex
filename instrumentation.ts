@@ -25,6 +25,32 @@ export async function register() {
       );
     }
 
+    const { setPartyWebhook } = await import("@/features/chat/server/telegram");
+    if (process.env.TELEGRAM_PARTY_BOT_TOKEN?.trim() && publicUrl) {
+      setPartyWebhook(`${publicUrl.replace(/\/$/, "")}/api/telegram/party/update`).catch(
+        () => {},
+      );
+    }
+
+    const { deleteStaleChallenges } = await import("@/features/chat/server/db");
+    const STALE_MS = Number(process.env.CHALLENGE_STALE_MS ?? 10 * 60_000);
+    const cleanupInterval = Number(
+      process.env.CHALLENGE_CLEANUP_INTERVAL_MS ?? 30_000,
+    );
+    const cleanupChallenges = async () => {
+      try {
+        const deleted = await deleteStaleChallenges(STALE_MS);
+        if (deleted > 0) {
+          console.log(`[cleanup] removed ${deleted} stale challenge(s)`);
+        }
+      } catch (err) {
+        console.error("[cleanup] failed to remove stale challenges", err);
+      }
+    };
+    cleanupChallenges().catch(() => {});
+    const challengeTimer = setInterval(cleanupChallenges, cleanupInterval);
+    challengeTimer.unref?.();
+
     const DAY_MS = 24 * 60 * 60 * 1000;
     const timer = setInterval(() => {
       refreshUsdIdrRate().catch(() => {});

@@ -1,10 +1,10 @@
 # syntax=docker/dockerfile:1
 
 # ============================================================
-# PIN-DEX multi-stage build
+# PIN-DEX multi-stage build (custom server + WebSocket /ws)
 # Stages: base -> deps -> builder -> runner
-# Final image only carries Next.js standalone output (traced
-# runtime code + minimal node_modules), so it stays small.
+# The runner keeps node_modules + .next + custom server.js so
+# Next.js runs inside `server.js` (WebSocket support).
 # ============================================================
 
 # ---- base: shared runtime for every stage ----
@@ -20,7 +20,7 @@ FROM base AS deps
 COPY package.json package-lock.json* ./
 RUN npm install --no-audit --no-fund --no-update-notifier
 
-# ---- builder: compile app to standalone output ----
+# ---- builder: compile app ----
 FROM deps AS builder
 COPY . .
 
@@ -30,7 +30,7 @@ ENV NEXT_PUBLIC_SOLANA_NETWORK=$NEXT_PUBLIC_SOLANA_NETWORK
 
 RUN npm run build
 
-# ---- runner: minimal runtime image ----
+# ---- runner: runtime image ----
 FROM node:24-alpine AS runner
 WORKDIR /app
 
@@ -42,10 +42,15 @@ ENV NODE_ENV=production \
 RUN addgroup --system --gid 1001 nodejs \
   && adduser --system --uid 1001 nextjs
 
-# Next.js standalone output (traced code + only the deps it needs)
+COPY --from=deps --chown=nextjs:nodejs /app/node_modules ./node_modules
+COPY --from=builder --chown=nextjs:nodejs /app/.next ./.next
 COPY --from=builder --chown=nextjs:nodejs /app/public ./public
-COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
-COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
+COPY --from=builder --chown=nextjs:nodejs /app/package.json ./package.json
+COPY --from=builder --chown=nextjs:nodejs /app/server.js ./server.js
+COPY --from=builder --chown=nextjs:nodejs /app/next.config.ts ./next.config.ts
+COPY --from=builder --chown=nextjs:nodejs /app/tsconfig.json ./tsconfig.json
+COPY --from=builder --chown=nextjs:nodejs /app/instrumentation.ts ./instrumentation.ts
+COPY --from=builder --chown=nextjs:nodejs /app/proxy.ts ./proxy.ts
 
 USER nextjs
 EXPOSE 3112

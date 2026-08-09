@@ -3,7 +3,7 @@ import mongoose, { Schema, type Document, type Model, type ObjectId } from "mong
 export type PurchaseStatus = "pending" | "verified" | "rejected";
 
 export interface PurchaseDocument extends Document {
-  userId: ObjectId;
+  userId: ObjectId | null;
   walletAddress: string;
   txSignature: string;
   solLamports: number;
@@ -14,7 +14,7 @@ export interface PurchaseDocument extends Document {
 
 const purchaseSchema = new Schema<PurchaseDocument>(
   {
-    userId: { type: Schema.Types.ObjectId, ref: "User", required: true, index: true },
+    userId: { type: Schema.Types.ObjectId, ref: "User", index: true },
     walletAddress: { type: String, required: true, index: true },
     txSignature: { type: String, required: true, unique: true },
     solLamports: { type: Number, required: true },
