@@ -63,8 +63,7 @@ export async function sendPartyOtpPhoto(chatId: number | string, otp: string): P
 
   await sendPartyMessage(
     chatId,
-    `👇 <b>Copy this code and paste it into the web verification:</b>\n\nYour code: <code>${otp}</code>`,
-    "HTML",
+    `👇 Copy this code and paste it into the web verification:\n\nYour code: ${otp}`,
   );
 }
 
