@@ -64,9 +64,9 @@ export function RouteTransitionProvider({
             <Image
               src="/pinesuru.png"
               alt="Pinnedex"
-              width={351}
-              height={351}
-              className="size-64 rounded-full shadow-lg animate-pulse"
+              width={1536}
+              height={1024}
+              className="h-64 w-auto animate-pulse"
             />
             <div className="relative rounded-2xl bg-[#F9B316] px-5 py-2.5 text-sm font-medium text-white">
               Please wait

@@ -44,7 +44,7 @@ export function MobileNav({ links }: { links: HeaderLink[] }) {
               alt="Pinnedex"
               width={351}
               height={351}
-              className="size-5 rounded-full"
+              className="h-5 w-auto rounded"
             />
             Pinnedex
           </SheetTitle>

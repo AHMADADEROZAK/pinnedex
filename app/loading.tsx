@@ -6,9 +6,9 @@ export default function Loading() {
       <Image
         src="/pinesuru.png"
         alt="Pinnedex"
-        width={351}
-        height={351}
-        className="size-64 animate-pulse rounded-full shadow-lg"
+        width={1536}
+        height={1024}
+        className="h-64 w-auto animate-pulse"
       />
       <div className="relative animate-in fade-in-0 zoom-in-95 rounded-2xl bg-[#F9B316] px-5 py-2.5 text-sm font-medium text-white">
         Please wait

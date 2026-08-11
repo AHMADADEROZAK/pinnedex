@@ -45,7 +45,7 @@ export async function Header() {
             alt="Pinnedex"
             width={351}
             height={351}
-            className="size-7 rounded-full"
+            className="h-7 w-auto rounded"
           />
           <h1 className="font-heading text-lg font-semibold tracking-tight">
             Pinnedex
