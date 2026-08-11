@@ -11,10 +11,12 @@ import {
   NavigationMenuList,
   navigationMenuTriggerStyle,
 } from "@/components/ui/navigation-menu";
+import { navIcons, type NavIconName } from "./nav-icons";
 
 export interface HeaderLink {
   href: string;
   label: string;
+  icon: NavIconName;
 }
 
 export function HeaderNav({ links }: { links: HeaderLink[] }) {
@@ -23,20 +25,27 @@ export function HeaderNav({ links }: { links: HeaderLink[] }) {
   return (
     <NavigationMenu>
       <NavigationMenuList>
-        {links.map((link) => (
-          <NavigationMenuItem key={link.href}>
-            <NavigationMenuLink
-              render={<Link href={link.href} />}
-              className={cn(
-                navigationMenuTriggerStyle(),
-                pathname.startsWith(link.href) &&
-                  "bg-muted font-medium text-foreground",
-              )}
-            >
-              {link.label}
-            </NavigationMenuLink>
-          </NavigationMenuItem>
-        ))}
+        {links.map((link) => {
+          const active = pathname.startsWith(link.href);
+          const Icon = navIcons[link.icon];
+          return (
+            <NavigationMenuItem key={link.href}>
+              <NavigationMenuLink
+                render={<Link href={link.href} />}
+                className={cn(
+                  navigationMenuTriggerStyle(),
+                  "group relative hover:bg-transparent focus-visible:bg-transparent data-[active=true]:bg-transparent",
+                  "after:absolute after:inset-x-2 after:-bottom-px after:h-0.5 after:rounded-full after:bg-primary after:origin-left after:scale-x-0 after:transition-transform after:duration-300",
+                  "hover:after:scale-x-100",
+                  active && "bg-transparent font-medium text-foreground after:scale-x-100",
+                )}
+              >
+                <Icon className="size-4 shrink-0 text-muted-foreground transition-colors group-hover:text-primary" />
+                {link.label}
+              </NavigationMenuLink>
+            </NavigationMenuItem>
+          );
+        })}
       </NavigationMenuList>
     </NavigationMenu>
   );

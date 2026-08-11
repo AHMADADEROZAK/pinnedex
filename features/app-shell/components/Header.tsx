@@ -1,5 +1,5 @@
+import Image from "next/image";
 import Link from "next/link";
-import { PinIcon } from "lucide-react";
 
 import { ConnectWallet } from "@/features/wallet/components/ConnectWallet";
 import { WalletBalance } from "@/features/wallet/components/WalletBalance";
@@ -13,16 +13,16 @@ export async function Header() {
   const firstWallet = user?.wallets?.[0]?.address;
 
   const navLinks: (HeaderLink & { auth?: boolean })[] = [
-    { href: "/features", label: "Features" },
-    { href: "/news", label: "News" },
-    { href: "/community", label: "Community" },
-    { href: "/presale", label: "Presale" },
-    { href: "/leaderboard", label: "Leaderboard" },
-    { href: "/party-room", label: "Party Room" },
+    { href: "/features", label: "Features", icon: "features" },
+    { href: "/news", label: "News", icon: "news" },
+    { href: "/community", label: "Community", icon: "community" },
+    { href: "/presale", label: "Presale", icon: "presale" },
+    { href: "/leaderboard", label: "Leaderboard", icon: "leaderboard" },
+    { href: "/party-room", label: "Party Room", icon: "party-room" },
     ...(firstWallet
-      ? [{ href: `/${firstWallet}`, label: "Signal", auth: true }]
+      ? [{ href: `/${firstWallet}`, label: "Signal", icon: "signal", auth: true }]
       : []),
-    { href: "/profile", label: "Profile", auth: true },
+    { href: "/profile", label: "Profile", icon: "profile", auth: true },
   ];
 
   const visibleLinks = user
@@ -33,6 +33,13 @@ export async function Header() {
     <header className="sticky top-0 z-50 border-b bg-background px-4 py-2 md:px-8">
       <div className="grid grid-cols-[auto_1fr_auto] items-center gap-2 md:gap-6">
         <Link href="/" className="flex items-center gap-2">
+          <Image
+            src="/pinesuru.png"
+            alt="Pinnedex"
+            width={351}
+            height={351}
+            className="size-7 rounded-full"
+          />
           <h1 className="font-heading text-lg font-semibold tracking-tight">
             Pinnedex
           </h1>
