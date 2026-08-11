@@ -20,7 +20,14 @@ export async function Header() {
     { href: "/leaderboard", label: "Leaderboard", icon: "leaderboard" },
     { href: "/party-room", label: "Party Room", icon: "party-room" },
     ...(firstWallet
-      ? [{ href: `/${firstWallet}`, label: "Signal", icon: "signal", auth: true }]
+      ? ([
+          {
+            href: `/${firstWallet}`,
+            label: "Signal",
+            icon: "signal",
+            auth: true,
+          },
+        ] satisfies (HeaderLink & { auth: true })[])
       : []),
     { href: "/profile", label: "Profile", icon: "profile", auth: true },
   ];
