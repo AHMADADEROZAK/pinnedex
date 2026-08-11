@@ -68,11 +68,11 @@ export function RouteTransitionProvider({
               height={351}
               className="size-64 rounded-full shadow-lg animate-pulse"
             />
-            <div className="relative rounded-2xl bg-primary px-5 py-2.5 text-sm font-medium text-primary-foreground">
+            <div className="relative rounded-2xl bg-[#F9B316] px-5 py-2.5 text-sm font-medium text-white">
               Please wait
               <span
                 aria-hidden
-                className="absolute -top-1.5 left-1/2 size-3 -translate-x-1/2 rotate-45 bg-primary"
+                className="absolute -top-1.5 left-1/2 size-3 -translate-x-1/2 rotate-45 bg-[#F9B316]"
               />
             </div>
           </motion.div>
