@@ -14,6 +14,7 @@ export async function Header() {
 
   const navLinks: (HeaderLink & { auth?: boolean })[] = [
     { href: "/features", label: "Features" },
+    { href: "/news", label: "News" },
     { href: "/community", label: "Community" },
     { href: "/presale", label: "Presale" },
     { href: "/leaderboard", label: "Leaderboard" },

@@ -15,6 +15,9 @@ export async function register() {
     const { startDexIngestion } = await import("@/features/signal/ingest");
     startDexIngestion();
 
+    const { startNewsSync } = await import("@/features/news/server/fetch");
+    startNewsSync();
+
     const { setTelegramWebhook } = await import(
       "@/features/signal/server/telegram"
     );

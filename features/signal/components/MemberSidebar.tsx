@@ -18,6 +18,7 @@ import {
   Globe,
   TagPlusIcon,
   FilePenIcon,
+  Newspaper,
 } from "lucide-react";
 
 import {
@@ -59,6 +60,7 @@ export function MemberSidebar({
     { href: `${base}/profiles`, label: "Profiles", icon: FilePenIcon },
     { href: `${base}/metas`, label: "Metas", icon: BarChart3 },
     { href: `${base}/search`, label: "Search", icon: Search },
+    { href: `${base}/news`, label: "News", icon: Newspaper },
     { href: `${base}/signals`, label: "Signals", icon: Activity, member: true },
     { href: `${base}/member`, label: "Telegram", icon: Send, member: true },
   ];
