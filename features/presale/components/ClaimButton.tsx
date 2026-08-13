@@ -6,8 +6,9 @@ import {
   TransactionInstruction,
   PublicKey,
   SystemProgram,
+  Connection,
 } from "@solana/web3.js";
-import { useConnection, useWallet } from "@solana/wallet-adapter-react";
+import { useWallet } from "@solana/wallet-adapter-react";
 import { Loader2, CheckCircle2 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -22,7 +23,7 @@ import {
   TOKEN_PROGRAM,
   ASSOCIATED_TOKEN_PROGRAM,
 } from "@/features/presale/lib/pda";
-import { presaleConfig } from "@/features/presale/config";
+import { presaleConfig, presaleRpcEndpoint } from "@/features/presale/config";
 
 const RENT_SYSVAR = new PublicKey("SysvarRent111111111111111111111111111111111");
 
@@ -68,8 +69,11 @@ export function ClaimButton({
   claimable: number;
   onClaimed?: () => void;
 }) {
-  const { connection } = useConnection();
   const { publicKey, sendTransaction } = useWallet();
+  const connection = useMemo(
+    () => new Connection(presaleRpcEndpoint, "confirmed"),
+    [],
+  );
   const [pending, setPending] = useState(false);
 
   const programId = useMemo(() => getProgramId(), []);

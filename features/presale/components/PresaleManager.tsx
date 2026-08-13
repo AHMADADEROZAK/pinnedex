@@ -8,7 +8,7 @@ import {
   TransactionInstruction,
   SystemProgram,
 } from "@solana/web3.js";
-import { useConnection, useWallet } from "@solana/wallet-adapter-react";
+import { useWallet } from "@solana/wallet-adapter-react";
 import { Loader2, Coins, Wallet, ArrowDownToLine, DollarSign } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -23,7 +23,7 @@ import {
   SPINE_MINT,
   TOKEN_PROGRAM,
 } from "@/features/presale/lib/pda";
-import { presaleConfig } from "@/features/presale/config";
+import { presaleConfig, presaleRpcEndpoint } from "@/features/presale/config";
 
 async function sha256Discriminator(name: string): Promise<Uint8Array> {
   const encoder = new TextEncoder();
@@ -39,8 +39,11 @@ function encodeU64(val: number | bigint): Uint8Array {
 }
 
 export function PresaleManager() {
-  const { connection } = useConnection();
   const { publicKey, sendTransaction } = useWallet();
+  const connection = useMemo(
+    () => new Connection(presaleRpcEndpoint, "confirmed"),
+    [],
+  );
   const [loading, setLoading] = useState(false);
   const [configData, setConfigData] = useState<{
     authority: string;

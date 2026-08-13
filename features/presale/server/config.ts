@@ -1,8 +1,7 @@
 import "server-only";
 
 import { Connection, PublicKey } from "@solana/web3.js";
-import { resolveRpcEndpoint } from "@/features/solana/server";
-import { presaleConfig } from "../config";
+import { presaleConfig, presaleRpcEndpoint } from "../config";
 
 export interface OnChainPresaleConfig {
   admin: string;
@@ -18,7 +17,7 @@ export interface OnChainPresaleConfig {
 
 export async function fetchOnChainConfig(): Promise<OnChainPresaleConfig | null> {
   try {
-    const conn = new Connection(resolveRpcEndpoint(), "confirmed");
+    const conn = new Connection(presaleRpcEndpoint, "confirmed");
     const programId = new PublicKey(presaleConfig.programId);
     const [configPda] = PublicKey.findProgramAddressSync(
       [Buffer.from("presale_config")],

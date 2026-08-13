@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback } from "react"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { Send, Loader2, MessageCircle } from "lucide-react"
@@ -47,7 +47,7 @@ const timeAgo = (dateStr: string) => {
 export function CommentSection({ postId, expanded = false }: { postId: string; expanded?: boolean }) {
   const [open, setOpen] = useState(expanded)
   const [comments, setComments] = useState<CommentData[]>([])
-  const [loading, setLoading] = useState(false)
+  const [commentsReady, setCommentsReady] = useState(false)
   const [pending, setPending] = useState(false)
 
   const form = useForm<FormValues>({
@@ -55,19 +55,25 @@ export function CommentSection({ postId, expanded = false }: { postId: string; e
     defaultValues: { content: "" },
   })
 
+  const loading = open && !commentsReady
+
+  const fetchComments = useCallback(async () => {
+    try {
+      const res = await fetch(`/api/comments?postId=${postId}`)
+      const data = await res.json()
+      setComments(data)
+    } catch {
+      // ignore network errors
+    } finally {
+      setCommentsReady(true)
+    }
+  }, [postId])
+
   useEffect(() => {
     if (expanded) {
-      fetchComments()
+      void Promise.resolve().then(fetchComments)
     }
-  }, [expanded, postId])
-
-  const fetchComments = async () => {
-    setLoading(true)
-    const res = await fetch(`/api/comments?postId=${postId}`)
-    const data = await res.json()
-    setComments(data)
-    setLoading(false)
-  }
+  }, [expanded, fetchComments])
 
   const toggle = () => {
     const next = !open

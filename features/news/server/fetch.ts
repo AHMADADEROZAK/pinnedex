@@ -41,7 +41,7 @@ function toEnclosure(value: unknown): { url: string; length?: string; type?: str
   };
 }
 
-export interface RawNewsItem extends Record<string, unknown> {}
+export type RawNewsItem = Record<string, unknown>;
 
 function normalizeItem(raw: RawNewsItem): {
   guid: string;

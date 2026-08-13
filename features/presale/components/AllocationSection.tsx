@@ -1,8 +1,8 @@
 "use client";
 
 import { useState, useEffect, useCallback, useMemo } from "react";
-import { PublicKey } from "@solana/web3.js";
-import { useConnection, useWallet } from "@solana/wallet-adapter-react";
+import { PublicKey, Connection } from "@solana/web3.js";
+import { useWallet } from "@solana/wallet-adapter-react";
 import { Wallet, ExternalLink } from "lucide-react";
 
 import {
@@ -10,9 +10,8 @@ import {
   findVestingPda,
   getProgramId,
 } from "@/features/presale/lib/pda";
-import { presaleConfig } from "@/features/presale/config";
+import { presaleConfig, presaleRpcEndpoint } from "@/features/presale/config";
 import { ClaimButton } from "./ClaimButton";
-import { solanaNetworkName } from "@/features/solana";
 
 function shortenAddress(address: string) {
   return `${address.slice(0, 4)}...${address.slice(-4)}`;
@@ -39,23 +38,27 @@ function calculateClaimable(data: VestingData, now: number): number {
 }
 
 export function AllocationSection() {
-  const { connection } = useConnection();
   const { publicKey, connected } = useWallet();
-  const [loading, setLoading] = useState(false);
+  const connection = useMemo(
+    () => new Connection(presaleRpcEndpoint, "confirmed"),
+    [],
+  );
   const [data, setData] = useState<VestingData | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [fetched, setFetched] = useState(false);
+
+  const loading = publicKey !== null && !fetched && error === null;
 
   const programId = useMemo(() => getProgramId(), []);
   const adminWallet = useMemo(() => new PublicKey(presaleConfig.adminWallet), []);
 
   const fetchAllocation = useCallback(async () => {
     if (!publicKey) return;
-    setLoading(true);
-    setError(null);
     try {
       const [configPda] = findConfigPda(adminWallet, programId);
       const [vestingPda] = findVestingPda(configPda, publicKey, programId);
       const acc = await connection.getAccountInfo(vestingPda);
+      setError(null);
       if (!acc || acc.data.length < 8) {
         setData(null);
         return;
@@ -84,20 +87,28 @@ export function AllocationSection() {
     } catch {
       setError("Failed to load allocation");
     } finally {
-      setLoading(false);
+      setFetched(true);
     }
   }, [publicKey, connection, adminWallet, programId]);
 
   useEffect(() => {
-    fetchAllocation();
-  }, [fetchAllocation]);
+    if (!publicKey) return;
+    void Promise.resolve().then(fetchAllocation);
+  }, [publicKey, fetchAllocation]);
 
-  const now = Math.floor(Date.now() / 1000);
+  const [now, setNow] = useState(() => Math.floor(Date.now() / 1000));
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setNow(Math.floor(Date.now() / 1000));
+    }, 30_000);
+    return () => clearInterval(timer);
+  }, []);
   const claimable = data ? calculateClaimable(data, now) : 0;
 
   if (!connected || !publicKey) return null;
 
-  const explorerCluster = solanaNetworkName === "mainnet-beta" ? "" : `?cluster=${solanaNetworkName}`;
+  const explorerCluster = "?cluster=devnet";
 
   return (
     <section className="flex flex-col gap-4 rounded-md border bg-card p-4">

@@ -1,7 +1,7 @@
 import "server-only";
 
 import { Connection, PublicKey } from "@solana/web3.js";
-import { presaleConfig } from "../config";
+import { presaleConfig, presaleRpcEndpoint } from "../config";
 
 export type PresaleSummary = {
   solCollected: number;
@@ -15,8 +15,7 @@ export type PresaleSummary = {
 
 export async function getPresaleSummary(): Promise<PresaleSummary | null> {
   try {
-    const rpcUrl = process.env.SOLANA_RPC_ENDPOINT ?? "https://api.devnet.solana.com";
-    const connection = new Connection(rpcUrl, "confirmed");
+    const connection = new Connection(presaleRpcEndpoint, "confirmed");
 
     const programId = new PublicKey(presaleConfig.programId);
     const admin = new PublicKey(presaleConfig.adminWallet);

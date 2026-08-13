@@ -64,20 +64,17 @@ const ALL_GROUPS = [
 export function EmojiDialog({ onSelect }: EmojiDialogProps) {
   const [open, setOpen] = useState(false)
   const [emojis, setEmojis] = useState<EmojiData[]>([])
-  const [loading, setLoading] = useState(false)
   const [category, setCategory] = useState("smileys-emotion")
 
   const filtered = emojis.filter((e) => e.group === category)
+  const loading = open && emojis.length === 0
 
   useEffect(() => {
-    if (open && emojis.length === 0) {
-      setLoading(true)
-      fetch("/api/emojis")
-        .then((r) => r.json())
-        .then((data: EmojiData[]) => setEmojis(data))
-        .catch(() => {})
-        .finally(() => setLoading(false))
-    }
+    if (!open || emojis.length > 0) return
+    fetch("/api/emojis")
+      .then((r) => r.json())
+      .then((data: EmojiData[]) => setEmojis(data))
+      .catch(() => {})
   }, [open, emojis.length])
 
   return (

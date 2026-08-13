@@ -1,7 +1,6 @@
 import { Connection, PublicKey } from "@solana/web3.js";
 
-import { resolveRpcEndpoint } from "@/features/solana/server";
-import { presaleConfig, solLamportsToTokens } from "@/features/presale/config";
+import { presaleConfig, presaleRpcEndpoint, solLamportsToTokens } from "@/features/presale/config";
 
 export type VerifyResult =
   | { ok: true; lamports: number; tokens: number }
@@ -21,11 +20,11 @@ export async function verifyPresaleTransaction(
     return { ok: false, error: "Invalid wallet address." };
   }
 
-  const connection = new Connection(resolveRpcEndpoint(), "confirmed");
+  const connection = new Connection(presaleRpcEndpoint, "confirmed");
 
   const tx = await connection.getParsedTransaction(signature, {
-    maxSupportedVersion: 0,
-  } as any);
+    maxSupportedTransactionVersion: 0,
+  });
 
   if (!tx) {
     return { ok: false, error: "Transaction not found. Check the signature or wait a moment." };
@@ -128,11 +127,11 @@ async function verifyTransferToCollection(
     return { ok: false, error: "Collection wallet is not configured." };
   }
 
-  const connection = new Connection(resolveRpcEndpoint(), "confirmed");
+  const connection = new Connection(presaleRpcEndpoint, "confirmed");
 
   const tx = await connection.getParsedTransaction(signature, {
-    maxSupportedVersion: 0,
-  } as any);
+    maxSupportedTransactionVersion: 0,
+  });
 
   if (!tx) {
     return { ok: false, error: "Transaction not found. Check the signature or wait a moment." };

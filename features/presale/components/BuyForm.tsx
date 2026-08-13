@@ -6,8 +6,9 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import {
   SystemProgram, Transaction, LAMPORTS_PER_SOL, PublicKey,
   TransactionInstruction,
+  Connection,
 } from "@solana/web3.js";
-import { useConnection, useWallet } from "@solana/wallet-adapter-react";
+import { useWallet } from "@solana/wallet-adapter-react";
 import { Send } from "lucide-react";
 import * as z from "zod";
 
@@ -35,7 +36,7 @@ import {
   findSolVaultPda,
   getProgramId,
 } from "@/features/presale/lib/pda";
-import { presaleConfig } from "@/features/presale/config";
+import { presaleConfig, presaleRpcEndpoint } from "@/features/presale/config";
 
 export interface BuyFormConfig {
   programId: string;
@@ -81,8 +82,11 @@ export function BuyForm({
   linkedWallets: string[];
   signedIn?: boolean;
 }) {
-  const { connection } = useConnection();
   const { publicKey, connected, signTransaction } = useWallet();
+  const connection = useMemo(
+    () => new Connection(presaleRpcEndpoint, "confirmed"),
+    [],
+  );
   const [error, setError] = useState<string | null>(null);
   const [sending, setSending] = useState(false);
   const [serverError, setServerError] = useState<string | null>(null);

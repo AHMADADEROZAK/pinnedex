@@ -3,6 +3,13 @@ const num = (v: string | undefined, fallback: number) => {
   return Number.isFinite(n) ? n : fallback;
 };
 
+// Presale ALWAYS runs on devnet (SPINE mint is a devnet token). Mainnet is used
+// for everything else. Override with NEXT_PUBLIC_PRESALE_RPC_ENDPOINT.
+export const presaleRpcEndpoint =
+  process.env.NEXT_PUBLIC_PRESALE_RPC_ENDPOINT ??
+  process.env.PRESALE_RPC_ENDPOINT ??
+  "https://api.devnet.solana.com";
+
 export const presaleConfig = {
   get programId() {
     return process.env.PRESALE_PROGRAM_ID ?? "6t8hLg3DvTYzXkm3gfNhMfgqh2x1akjjM2zwv8SMprA3";

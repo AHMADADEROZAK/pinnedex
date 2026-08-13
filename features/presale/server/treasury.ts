@@ -2,8 +2,7 @@ import "server-only";
 
 import { Connection, PublicKey } from "@solana/web3.js";
 
-import { resolveRpcEndpoint } from "@/features/solana/server";
-import { presaleConfig } from "@/features/presale/config";
+import { presaleConfig, presaleRpcEndpoint } from "@/features/presale/config";
 
 export type TreasuryBalance = {
   sol: number;
@@ -15,7 +14,7 @@ export async function getTreasuryBalance(): Promise<TreasuryBalance | null> {
   if (!address) return null;
 
   try {
-    const connection = new Connection(resolveRpcEndpoint(), "confirmed");
+    const connection = new Connection(presaleRpcEndpoint, "confirmed");
     const lamports = await connection.getBalance(new PublicKey(address));
     return { sol: lamports / 1e9, lamports };
   } catch {
