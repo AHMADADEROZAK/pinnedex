@@ -21,7 +21,8 @@ export const solanaNetwork: WalletAdapterNetwork =
       ? WalletAdapterNetwork.Testnet
       : WalletAdapterNetwork.Devnet;
 
-export const isDevnet = solanaNetworkName === "devnet";
+// export const isDevnet = solanaNetworkName === "devnet";
+export const isDevnet = "devnet";
 export const isMainnet = solanaNetworkName === "mainnet-beta";
 
 export const solanaRpcClientPath = "/api/rpc";
