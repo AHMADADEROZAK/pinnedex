@@ -4,6 +4,11 @@ members = [
 ]
 resolver = "2"
 
+# Tells solana-verify which build image to use (agave CLI version).
+# 3.1.x ships platform-tools v1.52 (Rust 1.89), matching the deploy toolchain.
+[workspace.metadata.cli]
+solana = "3.1.14"
+
 [workspace.package]
 edition = "2021"
 rust-version = "1.89.0"
