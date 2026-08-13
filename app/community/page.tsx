@@ -8,7 +8,7 @@ import { NewPins } from "@/features/community/components/NewPins"
 import type { PostData } from "@/features/community/components/PostCard"
 import { communityConfig } from "@/features/community/config"
 import { presaleConfig } from "@/features/presale"
-import { solanaNetwork } from "@/features/solana"
+import { solanaNetworkName } from "@/features/solana"
 import { connectToDatabase } from "@/lib/mongodb"
 import { getSessionUser } from "@/lib/dal"
 import { Post } from "@/features/community/models/Post"
@@ -28,7 +28,7 @@ export default async function CommunityPage() {
     .exec()
 
   const explorerCluster =
-    solanaNetwork === "mainnet-beta" ? "" : `?cluster=${solanaNetwork}`
+    solanaNetworkName === "mainnet-beta" ? "" : `?cluster=${solanaNetworkName}`
 
   const userId = user?._id?.toString() ?? ""
 

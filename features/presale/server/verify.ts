@@ -17,16 +17,15 @@ export async function verifyPresaleTransaction(
   }
 
   const buyerPk = toPublicKey(buyerWallet);
-  const collectionPk = toPublicKey(presaleConfig.collectionWallet);
-  if (!buyerPk || !collectionPk) {
+  if (!buyerPk) {
     return { ok: false, error: "Invalid wallet address." };
   }
 
   const connection = new Connection(resolveRpcEndpoint(), "confirmed");
 
   const tx = await connection.getParsedTransaction(signature, {
-    maxSupportedTransactionVersion: 0,
-  });
+    maxSupportedVersion: 0,
+  } as any);
 
   if (!tx) {
     return { ok: false, error: "Transaction not found. Check the signature or wait a moment." };
@@ -39,24 +38,38 @@ export async function verifyPresaleTransaction(
   const message = tx.transaction.message;
   let lamports = 0;
 
+  // Check top-level instructions
   for (const ix of message.instructions) {
     if ("parsed" in ix && ix.program === "system") {
       const parsed = ix.parsed as {
         type?: string;
         info?: { source?: string; destination?: string; lamports?: number };
       };
-      if (
-        parsed.type === "transfer" &&
-        parsed.info?.source === buyerPk.toString() &&
-        parsed.info.destination === collectionPk.toString()
-      ) {
+      if (parsed.type === "transfer" && parsed.info?.source === buyerPk.toString()) {
         lamports += parsed.info.lamports ?? 0;
       }
     }
   }
 
+  // Check inner instructions (CPI from program)
+  if (tx.meta?.innerInstructions) {
+    for (const inner of tx.meta.innerInstructions) {
+      for (const ix of inner.instructions) {
+        if ("parsed" in ix && ix.program === "system") {
+          const parsed = ix.parsed as {
+            type?: string;
+            info?: { source?: string; destination?: string; lamports?: number };
+          };
+          if (parsed.type === "transfer" && parsed.info?.source === buyerPk.toString()) {
+            lamports += parsed.info.lamports ?? 0;
+          }
+        }
+      }
+    }
+  }
+
   if (lamports <= 0) {
-    return { ok: false, error: "No matching SOL transfer to the collection wallet." };
+    return { ok: false, error: "No matching SOL transfer found in transaction." };
   }
 
   const tokens = solLamportsToTokens(lamports);
@@ -118,8 +131,8 @@ async function verifyTransferToCollection(
   const connection = new Connection(resolveRpcEndpoint(), "confirmed");
 
   const tx = await connection.getParsedTransaction(signature, {
-    maxSupportedTransactionVersion: 0,
-  });
+    maxSupportedVersion: 0,
+  } as any);
 
   if (!tx) {
     return { ok: false, error: "Transaction not found. Check the signature or wait a moment." };

@@ -2,7 +2,7 @@ import { ShoppingCart } from "lucide-react";
 
 import { connectToDatabase } from "@/lib/mongodb";
 import { Purchase } from "@/features/presale";
-import { solanaNetwork } from "@/features/solana";
+import { solanaNetworkName } from "@/features/solana";
 import { PurchasesTable } from "./columns";
 
 function shortenAddress(address: string) {
@@ -19,7 +19,7 @@ export default async function AdminPurchasesPage() {
     .exec();
 
   const explorerCluster =
-    solanaNetwork === "mainnet-beta" ? "" : `?cluster=${solanaNetwork}`;
+    solanaNetworkName === "mainnet-beta" ? "" : `?cluster=${solanaNetworkName}`;
 
   const data = purchases.map((p) => ({
     wallet: shortenAddress(p.walletAddress),

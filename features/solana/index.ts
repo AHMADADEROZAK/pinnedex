@@ -1,2 +1,9 @@
 export { SolanaProvider } from "./providers/SolanaProvider";
-export { solanaNetwork, solanaRpcClientPath, networkLabel } from "./config";
+export {
+  solanaNetwork,
+  solanaNetworkName,
+  isDevnet,
+  isMainnet,
+  solanaRpcClientPath,
+  networkLabel,
+} from "./config";

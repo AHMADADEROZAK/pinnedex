@@ -5,7 +5,7 @@ import { Types } from "mongoose";
 import { Header } from "@/features/app-shell";
 import { LogoutButton } from "@/features/auth";
 import { WalletManager } from "@/features/wallet";
-import { solanaNetwork } from "@/features/solana";
+import { solanaNetworkName } from "@/features/solana";
 import { formatUsd } from "@/lib/format";
 import { adminBasePath } from "@/lib/admin-path";
 import { connectToDatabase } from "@/lib/mongodb";
@@ -32,7 +32,7 @@ export default async function ProfilePage() {
   const { tokenPriceUsd } = await getPresaleUsdPrices();
 
   const explorerCluster =
-    solanaNetwork === "mainnet-beta" ? "" : `?cluster=${solanaNetwork}`;
+    solanaNetworkName === "mainnet-beta" ? "" : `?cluster=${solanaNetworkName}`;
 
   const txUrl = (sig: string) =>
     `https://explorer.solana.com/tx/${sig}${explorerCluster}`;

@@ -40,8 +40,8 @@ export function HeaderNav({ links }: { links: HeaderLink[] }) {
                   active && "bg-transparent font-medium text-foreground after:scale-x-100",
                 )}
               >
-                <span className="grid size-6 shrink-0 place-items-center rounded-md bg-[#F9B316] text-white">
-                  <Icon className="size-3.5" />
+                <span className="size-3.5 shrink-0 text-muted-foreground">
+                  <Icon className="size-full" />
                 </span>
                 {link.label}
               </NavigationMenuLink>

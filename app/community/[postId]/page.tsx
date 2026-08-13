@@ -4,7 +4,7 @@ import Link from "next/link"
 import { Header } from "@/features/app-shell"
 import { InlineCommentForm } from "@/features/community/components/InlineCommentForm"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
-import { solanaNetwork } from "@/features/solana"
+import { solanaNetworkName } from "@/features/solana"
 import { connectToDatabase } from "@/lib/mongodb"
 import { getSessionUser } from "@/lib/dal"
 import { Post } from "@/features/community/models/Post"
@@ -70,7 +70,7 @@ export default async function PostDetailPage({
     .exec()
 
   const explorerCluster =
-    solanaNetwork === "mainnet-beta" ? "" : `?cluster=${solanaNetwork}`
+    solanaNetworkName === "mainnet-beta" ? "" : `?cluster=${solanaNetworkName}`
 
   return (
     <div className="flex min-h-svh flex-col">

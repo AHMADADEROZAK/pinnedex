@@ -1,5 +1,6 @@
 import {
   Activity,
+  Coins,
   Compass,
   Newspaper,
   PartyPopper,
@@ -15,6 +16,7 @@ export const navIcons = {
   news: Newspaper,
   community: Users,
   presale: Rocket,
+  claim: Coins,
   leaderboard: Trophy,
   "party-room": PartyPopper,
   signal: Activity,

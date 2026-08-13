@@ -177,11 +177,7 @@ export default async function Page() {
               title="Trust & transparency"
               description="See exactly where your SOL goes. The treasury is public and committed to creating liquidity after listing."
             />
-            <TrustSection
-              treasuryAddress={presaleConfig.collectionWallet}
-              treasurySol={treasury?.sol ?? null}
-              totalSolCollected={totalSolCollected}
-            />
+            <TrustSection />
           </section>
         ) : null}
 

@@ -17,6 +17,7 @@ export async function Header() {
     { href: "/news", label: "News", icon: "news" },
     { href: "/community", label: "Community", icon: "community" },
     { href: "/presale", label: "Presale", icon: "presale" },
+    { href: "/presale/claim", label: "Claim", icon: "claim" },
     { href: "/leaderboard", label: "Leaderboard", icon: "leaderboard" },
     { href: "/party-room", label: "Party Room", icon: "party-room" },
     ...(firstWallet

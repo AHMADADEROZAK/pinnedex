@@ -19,7 +19,7 @@ export function PresaleCountdown({ end }: { end: Date }) {
 
   if (now === null) {
     return (
-      <div className="flex items-center gap-3">
+      <div className="flex items-center justify-between gap-3">
         <CountdownUnit value="--" label="Days" />
         <span className="text-lg text-muted-foreground">:</span>
         <CountdownUnit value="--" label="Hours" />

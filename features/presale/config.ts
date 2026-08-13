@@ -4,8 +4,20 @@ const num = (v: string | undefined, fallback: number) => {
 };
 
 export const presaleConfig = {
+  get programId() {
+    return process.env.PRESALE_PROGRAM_ID ?? "6t8hLg3DvTYzXkm3gfNhMfgqh2x1akjjM2zwv8SMprA3";
+  },
   get collectionWallet() {
     return process.env.PRESALE_COLLECTION_WALLET ?? "";
+  },
+  get tokenMint() {
+    return process.env.PRESALE_TOKEN_MINT ?? "8PydPRxUmKE88V2kurQyMCA33V1Ny4QBgSPrxNQsdQip";
+  },
+  get pricePerTokenLamports() {
+    return num(process.env.PRESALE_PRICE_PER_TOKEN, 1000);
+  },
+  get adminWallet() {
+    return process.env.PRESALE_ADMIN_WALLET ?? "2hsTq8QVdkuNhEcjgZbbDz2LXRudMfofixZV5hiQi417";
   },
   get tokenPriceIdr() {
     return num(process.env.TOKEN_PRICE_IDR, 5);
@@ -39,6 +51,15 @@ export const presaleConfig = {
     const v = process.env.PRESALE_END;
     return v ? new Date(v) : null;
   },
+  get vestingCliffDays() {
+    return num(process.env.PRESALE_VESTING_CLIFF_DAYS, 7);
+  },
+  get vestingDurationDays() {
+    return num(process.env.PRESALE_VESTING_DURATION_DAYS, 30);
+  },
+  get tgePct() {
+    return num(process.env.PRESALE_TGE_PCT, 20);
+  },
 };
 
 export function isPresaleActive(now = new Date()) {
@@ -55,15 +76,4 @@ export function solLamportsToTokens(lamports: number) {
   const sol = lamports / 1e9;
   const tokens = Math.floor((sol * presaleConfig.idrPerSol) / presaleConfig.tokenPriceIdr);
   return tokens;
-}
-
-export async function getPresaleUsdPrices() {
-  const { getUsdIdrRate } = await import("@/features/rates/exchangeRate");
-  const { idrPerUsd } = await getUsdIdrRate();
-
-  return {
-    tokenPriceUsd: presaleConfig.tokenPriceIdr / idrPerUsd,
-    solPriceUsd: presaleConfig.idrPerSol / idrPerUsd,
-    idrPerUsd,
-  };
 }
