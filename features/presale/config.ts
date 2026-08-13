@@ -4,27 +4,26 @@ const num = (v: string | undefined, fallback: number) => {
 };
 
 // Presale ALWAYS runs on devnet (SPINE mint is a devnet token). Mainnet is used
-// for everything else. Override with NEXT_PUBLIC_PRESALE_RPC_ENDPOINT.
+// for everything else. Override with PRESALE_RPC_ENDPOINT.
 export const presaleRpcEndpoint =
-  process.env.NEXT_PUBLIC_PRESALE_RPC_ENDPOINT ??
   process.env.PRESALE_RPC_ENDPOINT ??
   "https://api.devnet.solana.com";
 
 export const presaleConfig = {
   get programId() {
-    return process.env.PRESALE_PROGRAM_ID ?? "6t8hLg3DvTYzXkm3gfNhMfgqh2x1akjjM2zwv8SMprA3";
+    return process.env.PRESALE_PROGRAM_ID ?? "";
   },
   get collectionWallet() {
     return process.env.PRESALE_COLLECTION_WALLET ?? "";
   },
   get tokenMint() {
-    return process.env.PRESALE_TOKEN_MINT ?? "8PydPRxUmKE88V2kurQyMCA33V1Ny4QBgSPrxNQsdQip";
+    return process.env.PRESALE_TOKEN_MINT ?? "";
   },
   get pricePerTokenLamports() {
     return num(process.env.PRESALE_PRICE_PER_TOKEN, 1000);
   },
   get adminWallet() {
-    return process.env.PRESALE_ADMIN_WALLET ?? "2hsTq8QVdkuNhEcjgZbbDz2LXRudMfofixZV5hiQi417";
+    return process.env.PRESALE_ADMIN_WALLET ?? "";
   },
   get tokenPriceIdr() {
     return num(process.env.TOKEN_PRICE_IDR, 5);
