@@ -7,7 +7,7 @@ export type MemberPlan = "weekly" | "monthly";
 
 export const signalConfig = {
   get collectionWallet() {
-    return process.env.PRESALE_COLLECTION_WALLET ?? "";
+    return process.env.NEXT_PUBLIC_PRESALE_COLLECTION_WALLET ?? "";
   },
   get weeklyFeeSol() {
     return num(process.env.MEMBER_WEEKLY_FEE_SOL, 0.05);

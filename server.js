@@ -1,8 +1,14 @@
 import { createServer } from "node:http";
 
+import { config as loadEnv } from "dotenv";
 import next from "next";
 import mongoose from "mongoose";
 import { WebSocketServer } from "ws";
+
+loadEnv();
+if (process.env.NODE_ENV === "production") {
+  loadEnv({ path: ".env.production", override: true });
+}
 
 const dev = process.env.NODE_ENV !== "production";
 const hostname = process.env.HOSTNAME ?? "0.0.0.0";
