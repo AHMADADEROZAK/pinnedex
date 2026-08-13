@@ -3,6 +3,12 @@ import { z } from "zod";
 const posNum = z.coerce.number().finite().positive();
 const nonNegNum = z.coerce.number().finite().nonnegative();
 
+/** Base58 string of a 32-byte Solana pubkey (1-9, no 0/O/I/l). */
+const pubkey = z
+  .string()
+  .min(1)
+  .regex(/^[1-9A-HJ-NP-Za-km-z]{32,44}$/, "Invalid Solana public key");
+
 /**
  * Schema for the presale configuration. Values are prefixed NEXT_PUBLIC_ because
  * they are needed inside client components (BuyForm, ClaimButton, etc.) and are
@@ -13,10 +19,10 @@ const nonNegNum = z.coerce.number().finite().nonnegative();
  * to a hardcoded default.
  */
 export const presaleEnvSchema = z.object({
-  NEXT_PUBLIC_PRESALE_PROGRAM_ID: z.string().min(1),
-  NEXT_PUBLIC_PRESALE_COLLECTION_WALLET: z.string().min(1),
-  NEXT_PUBLIC_PRESALE_TOKEN_MINT: z.string().min(1),
-  NEXT_PUBLIC_PRESALE_ADMIN_WALLET: z.string().min(1),
+  NEXT_PUBLIC_PRESALE_PROGRAM_ID: pubkey,
+  NEXT_PUBLIC_PRESALE_COLLECTION_WALLET: pubkey,
+  NEXT_PUBLIC_PRESALE_TOKEN_MINT: pubkey,
+  NEXT_PUBLIC_PRESALE_ADMIN_WALLET: pubkey,
   NEXT_PUBLIC_PRESALE_RPC_ENDPOINT: z.string().min(1),
   NEXT_PUBLIC_PRESALE_PRICE_PER_TOKEN: posNum,
   NEXT_PUBLIC_TOKEN_PRICE_IDR: posNum,
