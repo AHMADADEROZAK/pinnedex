@@ -39,4 +39,8 @@ docs
 /AGENTS.md
 .env.example
 vesting
-contracts
+# Solana program source is committed (required for solana-verify verified builds).
+# Its own .gitignore keeps out target/ node_modules/ .anchor/ (deploy keypairs).
+/contracts/*
+!/contracts/
+!/contracts/presale/
