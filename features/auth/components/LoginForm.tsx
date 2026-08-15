@@ -31,6 +31,7 @@ export function LoginForm({
 }) {
   const [step, setStep] = useState<"email" | "credentials">("email");
   const [confirmedEmail, setConfirmedEmail] = useState("");
+  const [isAdmin, setIsAdmin] = useState(false);
   const [serverError, setServerError] = useState<string | null>(null);
   const [pending, setPending] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
@@ -60,6 +61,10 @@ export function LoginForm({
 
     if (result.exists) {
       setConfirmedEmail(email);
+      setIsAdmin(result.admin);
+      if (result.admin) {
+        form.setValue("signature", "dev", { shouldValidate: true });
+      }
       setStep("credentials");
     } else {
       form.setError("email", { message: result.error });
@@ -177,7 +182,7 @@ export function LoginForm({
             />
           </FieldGroup>
 
-          {collectionWallet ? (
+          {collectionWallet && !isAdmin ? (
             <FeePayment
               label="Login fee"
               feeSol={feeSol}
@@ -187,6 +192,12 @@ export function LoginForm({
               }
             />
           ) : null}
+
+          {isAdmin && (
+            <p className="rounded-md border bg-muted/30 px-3 py-2 text-xs text-muted-foreground">
+              Admin account — no login fee required.
+            </p>
+          )}
 
           {serverError && <p className="text-sm text-destructive">{serverError}</p>}
 

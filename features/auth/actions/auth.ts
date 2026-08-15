@@ -25,8 +25,12 @@ const EmailCheckSchema = z.object({
 });
 
 export type EmailCheckResult =
-  | { exists: true }
+  | { exists: true; admin: boolean }
   | { exists: false; error: string };
+
+export type SignupEmailCheckResult =
+  | { ok: true; admin: boolean }
+  | { ok: false; error: string };
 
 export async function checkEmail(
   state: EmailCheckResult | undefined,
@@ -55,7 +59,30 @@ export async function checkEmail(
     return { exists: false, error: "No account found with this email." };
   }
 
-  return { exists: true };
+  return { exists: true, admin: roleForEmail(validated.data.email) === "admin" };
+}
+
+export async function checkSignupEmail(
+  state: SignupEmailCheckResult | undefined,
+  formData: FormData,
+): Promise<SignupEmailCheckResult> {
+  const limit = await enforceRateLimit();
+  if (!limit.allowed) {
+    return { ok: false, error: "Too many requests. Please wait a minute." };
+  }
+
+  const validated = EmailCheckSchema.safeParse({
+    email: formData.get("email"),
+  });
+
+  if (!validated.success) {
+    return {
+      ok: false,
+      error: validated.error.flatten().fieldErrors.email?.[0] ?? "Invalid email.",
+    };
+  }
+
+  return { ok: true, admin: roleForEmail(validated.data.email) === "admin" };
 }
 
 function roleForEmail(email: string): UserRole {
@@ -87,6 +114,8 @@ export async function signup(state: FormState, formData: FormData) {
 
   await connectToDatabase();
 
+  const isAdmin = roleForEmail(email) === "admin";
+
   const existing = await User.findOne({ email }).exec();
   if (existing) {
     return { errors: { email: ["An account with this email already exists."] } };
@@ -101,10 +130,15 @@ export async function signup(state: FormState, formData: FormData) {
     };
   }
 
-  if (presaleConfig.collectionWallet) {
-    const payment = await verifyRegistrationPayment(signature);
-    if (!payment.ok) {
-      return { errors: { signature: [payment.error] } };
+  if (!isAdmin) {
+    if (!signature) {
+      return { errors: { signature: ["Transaction signature is required."] } };
+    }
+    if (presaleConfig.collectionWallet) {
+      const payment = await verifyRegistrationPayment(signature);
+      if (!payment.ok) {
+        return { errors: { signature: [payment.error] } };
+      }
     }
   }
 
@@ -151,25 +185,33 @@ export async function login(state: FormState, formData: FormData) {
     return { errors: { password: ["Incorrect password."] } };
   }
 
-  const usedPayment = await LoginPayment.findOne({ txSignature: signature }).exec();
-  if (usedPayment) {
-    return {
-      errors: { signature: ["This transaction signature has already been used."] },
-    };
-  }
+  const isAdmin = user.role === "admin";
 
-  if (presaleConfig.collectionWallet) {
-    const payment = await verifyLoginPayment(signature);
-    if (!payment.ok) {
-      return { errors: { signature: [payment.error] } };
+  if (!isAdmin) {
+    if (!signature) {
+      return { errors: { signature: ["Transaction signature is required."] } };
     }
-  }
 
-  const loginPayment = new LoginPayment({
-    txSignature: signature,
-    userId: user._id,
-  });
-  await loginPayment.save();
+    const usedPayment = await LoginPayment.findOne({ txSignature: signature }).exec();
+    if (usedPayment) {
+      return {
+        errors: { signature: ["This transaction signature has already been used."] },
+      };
+    }
+
+    if (presaleConfig.collectionWallet) {
+      const payment = await verifyLoginPayment(signature);
+      if (!payment.ok) {
+        return { errors: { signature: [payment.error] } };
+      }
+    }
+
+    const loginPayment = new LoginPayment({
+      txSignature: signature,
+      userId: user._id,
+    });
+    await loginPayment.save();
+  }
 
   await createSession(user._id.toString(), user.role);
   redirect("/profile");

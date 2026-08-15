@@ -38,19 +38,13 @@ export const SignupServerSchema = z.object({
     .trim(),
   email: z.email({ error: "Please enter a valid email." }).trim(),
   password: passwordHashSchema,
-  signature: z
-    .string()
-    .min(1, { error: "Transaction signature is required." })
-    .trim(),
+  signature: z.string().trim().optional(),
 });
 
 export const LoginServerSchema = z.object({
   email: z.email({ error: "Please enter a valid email." }).trim(),
   password: passwordHashSchema,
-  signature: z
-    .string()
-    .min(1, { error: "Transaction signature is required." })
-    .trim(),
+  signature: z.string().trim().optional(),
 });
 
 export type FormState =
