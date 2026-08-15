@@ -13,6 +13,7 @@ export async function Header() {
   const firstWallet = user?.wallets?.[0]?.address;
 
   const navLinks: (HeaderLink & { auth?: boolean })[] = [
+    { href: "/free", label: "Free", icon: "free" },
     { href: "/features", label: "Features", icon: "features" },
     { href: "/news", label: "News", icon: "news" },
     { href: "/community", label: "Community", icon: "community" },

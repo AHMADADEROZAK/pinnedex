@@ -2,6 +2,7 @@ import {
   Activity,
   Coins,
   Compass,
+  Gift,
   Newspaper,
   PartyPopper,
   Rocket,
@@ -19,6 +20,7 @@ export const navIcons = {
   claim: Coins,
   leaderboard: Trophy,
   "party-room": PartyPopper,
+  free: Gift,
   signal: Activity,
   profile: UserRound,
 } satisfies Record<string, LucideIcon>;
