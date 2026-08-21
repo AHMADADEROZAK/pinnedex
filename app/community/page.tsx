@@ -6,8 +6,6 @@ import { CommunitySearch } from "@/features/community/components/CommunitySearch
 import { PopularPins } from "@/features/community/components/PopularPins"
 import { NewPins } from "@/features/community/components/NewPins"
 import type { PostData } from "@/features/community/components/PostCard"
-import { communityConfig } from "@/features/community/config"
-import { presaleConfig } from "@/features/presale"
 import { solanaNetworkName } from "@/features/solana"
 import { connectToDatabase } from "@/lib/mongodb"
 import { getSessionUser } from "@/lib/dal"
@@ -55,9 +53,11 @@ export default async function CommunityPage() {
         images: imageUrls,
         userName: u?.name ?? "Unknown",
         userEmail: u?.email ?? "",
-        txSignature: p.txSignature,
+        txSignature: p.txSignature ?? undefined,
         createdAt: (p as unknown as { createdAt: Date }).createdAt?.toISOString() ?? new Date().toISOString(),
-        explorerTxUrl: `https://explorer.solana.com/tx/${p.txSignature}${explorerCluster}`,
+        explorerTxUrl: p.txSignature
+          ? `https://explorer.solana.com/tx/${p.txSignature}${explorerCluster}`
+          : undefined,
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         likesCount: (p.likes as any)?.length ?? 0,
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -109,13 +109,10 @@ export default async function CommunityPage() {
 
             {/* SEARCH */}
             {user ? (
-              <PinDialog
-                feeSol={communityConfig.feeSol}
-                collectionWallet={presaleConfig.collectionWallet}
-              />
+              <PinDialog />
             ) : (
               <Link
-                href="/login"
+                href="/sign-in"
                 className="inline-flex items-center gap-1.5 rounded-full border border-[#9945FF]/40 px-4 py-1.5 text-sm font-medium text-[#9945FF] transition-colors hover:bg-[#9945FF]/10"
               >
                 <SparklesIcon className="size-4" />
@@ -130,14 +127,10 @@ export default async function CommunityPage() {
                 You&apos;re viewing the community in preview mode.
               </p>
               <p className="mt-1 text-muted-foreground">
-                <Link href="/login" className="text-primary hover:underline">
+                <Link href="/sign-in" className="text-primary hover:underline">
                   Sign in
                 </Link>{" "}
-                or{" "}
-                <Link href="/register" className="text-primary hover:underline">
-                  create an account
-                </Link>{" "}
-                to create pins, like, and comment.
+                with X to create pins, like, and comment — it&apos;s free.
               </p>
             </div>
           )}

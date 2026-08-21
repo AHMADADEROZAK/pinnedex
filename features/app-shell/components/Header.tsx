@@ -6,6 +6,7 @@ import { WalletBalance } from "@/features/wallet/components/WalletBalance";
 import { getSessionUser } from "@/lib/dal";
 import { HeaderNav, type HeaderLink } from "./HeaderNav";
 import { MobileNav } from "./MobileNav";
+import { UserMenu } from "./UserMenu";
 
 export async function Header() {
   const user = await getSessionUser();
@@ -13,23 +14,37 @@ export async function Header() {
   const firstWallet = user?.wallets?.[0]?.address;
 
   const navLinks: (HeaderLink & { auth?: boolean })[] = [
-    { href: "/free", label: "Free", icon: "free" },
+    { href: "/free", label: "Dex", icon: "chart-candlestick" },
     { href: "/features", label: "Features", icon: "features" },
     { href: "/news", label: "News", icon: "news" },
     { href: "/community", label: "Community", icon: "community" },
-    { href: "/presale", label: "Presale", icon: "presale" },
-    { href: "/presale/claim", label: "Claim", icon: "claim" },
-    { href: "/leaderboard", label: "Leaderboard", icon: "leaderboard" },
-    { href: "/party-room", label: "Party Room", icon: "party-room" },
+    {
+      href: "/presale",
+      label: "Presale",
+      icon: "presale",
+      children: [
+        { href: "/presale", label: "Presale", icon: "presale" },
+        { href: "/presale/claim", label: "Claim", icon: "claim" },
+      ],
+    },
+    {
+      href: "/leaderboard",
+      label: "Tools",
+      icon: "leaderboard",
+      children: [
+        { href: "/leaderboard", label: "Leaderboard", icon: "leaderboard" },
+        { href: "/party-room", label: "Party Room", icon: "party-room" },
+      ],
+    },
     ...(firstWallet
       ? ([
-          {
-            href: `/${firstWallet}`,
-            label: "Signal",
-            icon: "signal",
-            auth: true,
-          },
-        ] satisfies (HeaderLink & { auth: true })[])
+        {
+          href: `/${firstWallet}`,
+          label: "Signal",
+          icon: "signal",
+          auth: true,
+        },
+      ] satisfies (HeaderLink & { auth: true })[])
       : []),
     { href: "/profile", label: "Profile", icon: "profile", auth: true },
   ];
@@ -61,6 +76,7 @@ export async function Header() {
             <WalletBalance />
             <ConnectWallet />
           </div>
+          <UserMenu />
           <MobileNav links={visibleLinks} />
         </div>
       </div>

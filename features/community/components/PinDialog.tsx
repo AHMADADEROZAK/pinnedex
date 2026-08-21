@@ -3,9 +3,7 @@
 import { useState } from "react"
 import { useForm, useWatch } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { SystemProgram, Transaction, LAMPORTS_PER_SOL, PublicKey } from "@solana/web3.js"
-import { useConnection, useWallet } from "@solana/wallet-adapter-react"
-import { Loader2, Send, PinIcon, X, Sparkles, AlertCircle, MapPin } from "lucide-react"
+import { Loader2, Send, PinIcon, X, AlertCircle, MapPin } from "lucide-react"
 import { useRouter } from "next/navigation"
 import * as z from "zod"
 
@@ -13,7 +11,6 @@ import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
 import { FieldError } from "@/components/ui/field"
 import { toast } from "@/components/ui/toast"
-import { ConnectWallet } from "@/features/wallet/components/ConnectWallet"
 import { ImageUpload } from "@/features/community/components/ImageUpload"
 import { EmojiDialog } from "@/features/community/components/EmojiDialog"
 import { pinned } from "@/features/community/actions/community"
@@ -39,11 +36,6 @@ const formSchema = z.object({
 })
 
 type FormValues = z.infer<typeof formSchema>
-
-interface PinDialogProps {
-  feeSol: number
-  collectionWallet: string
-}
 
 /**
  * Small circular progress ring showing how much of the character
@@ -98,10 +90,8 @@ function CharacterRing({ value, max }: { value: number; max: number }) {
   )
 }
 
-export function PinDialog({ feeSol, collectionWallet }: PinDialogProps) {
+export function PinDialog() {
   const router = useRouter()
-  const { connection } = useConnection()
-  const { publicKey, connected, sendTransaction } = useWallet()
   const [open, setOpen] = useState(false)
   const [pending, setPending] = useState(false)
   const [images, setImages] = useState<{ key: string; preview: string }[]>([])
@@ -115,7 +105,6 @@ export function PinDialog({ feeSol, collectionWallet }: PinDialogProps) {
   })
 
   const contentValue = useWatch({ control: form.control, name: "content" }) ?? ""
-  const lamports = Math.round(feeSol * LAMPORTS_PER_SOL)
 
   const handleOpenChange = (next: boolean) => {
     setOpen(next)
@@ -180,60 +169,14 @@ export function PinDialog({ feeSol, collectionWallet }: PinDialogProps) {
       content = `${content}\n\n📍 ${location.trim()}`
     }
 
-    if (!collectionWallet) {
-      const fd = new FormData()
-      fd.set("content", content)
-      for (const img of images) {
-        fd.append("images", img.key)
-      }
-      fd.set("signature", "dev")
-
-      const state: FormState = await pinned(undefined, fd)
-      setPending(false)
-      handleState(state)
-      return
+    const fd = new FormData()
+    fd.set("content", content)
+    for (const img of images) {
+      fd.append("images", img.key)
     }
 
-    if (!connected || !publicKey || !sendTransaction) {
-      setPending(false)
-      return
-    }
-
-    try {
-      const tx = new Transaction().add(
-        SystemProgram.transfer({
-          fromPubkey: publicKey,
-          toPubkey: new PublicKey(collectionWallet),
-          lamports,
-        }),
-      )
-      const sig = await sendTransaction(tx, connection)
-
-      const fd = new FormData()
-      fd.set("content", content)
-      for (const img of images) {
-        fd.append("images", img.key)
-      }
-      fd.set("signature", sig)
-
-      const state: FormState = await pinned(undefined, fd)
-      handleState(state)
-    } catch (err) {
-      const message = err instanceof Error ? err.message : "Transaction failed."
-      const cancelled =
-        message.toLowerCase().includes("rejected") ||
-        message.toLowerCase().includes("cancel") ||
-        message.toLowerCase().includes("denied")
-
-      if (cancelled) {
-        toast.add({
-          title: "Transaction cancelled",
-          description: "You closed or rejected the request in your wallet.",
-          type: "warning",
-        })
-      }
-      setPending(false)
-    }
+    const state: FormState = await pinned(undefined, fd)
+    handleState(state)
   }
 
   function handleState(state: FormState) {
@@ -292,9 +235,7 @@ export function PinDialog({ feeSol, collectionWallet }: PinDialogProps) {
                   Create a pin
                 </AlertDialogTitle>
                 <p className="mt-1 text-xs text-muted-foreground">
-                  {collectionWallet
-                    ? "Pinned posts stay at the top of the feed"
-                    : "Share something with the community"}
+                  Share something with the community — it&apos;s free
                 </p>
               </div>
             </div>
@@ -415,36 +356,20 @@ export function PinDialog({ feeSol, collectionWallet }: PinDialogProps) {
           </div>
 
           {/* Footer */}
-          <div className="mt-4 flex items-center justify-between gap-3 border-t bg-muted/20 px-5 py-3.5">
-            {collectionWallet ? (
-              <div className="flex items-center gap-1.5 rounded-full border bg-background px-2.5 py-1">
-                <Sparkles className="size-3.5 text-[#9945FF]" />
-                <span className="text-xs font-medium">
-                  {feeSol} SOL
-                  <span className="ml-1 font-normal text-muted-foreground">to pin</span>
-                </span>
-              </div>
-            ) : (
-              <span />
-            )}
-
-            {collectionWallet && !connected ? (
-              <ConnectWallet />
-            ) : (
-              <Button
-                type="submit"
-                disabled={pending || !form.formState.isValid}
-                size="sm"
-                className="gap-1.5"
-              >
-                {pending ? (
-                  <Loader2 className="size-4 animate-spin" />
-                ) : (
-                  <Send className="size-4" />
-                )}
-                {pending ? "Pinning…" : "Pin post"}
-              </Button>
-            )}
+          <div className="mt-4 flex items-center justify-end gap-3 border-t bg-muted/20 px-5 py-3.5">
+            <Button
+              type="submit"
+              disabled={pending || !form.formState.isValid}
+              size="sm"
+              className="gap-1.5"
+            >
+              {pending ? (
+                <Loader2 className="size-4 animate-spin" />
+              ) : (
+                <Send className="size-4" />
+              )}
+              {pending ? "Pinning…" : "Pin post"}
+            </Button>
           </div>
 
           {serverError && (

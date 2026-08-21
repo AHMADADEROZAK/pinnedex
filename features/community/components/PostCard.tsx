@@ -22,9 +22,9 @@ export interface PostData {
   images: { key: string; url: string }[]
   userName: string
   userEmail: string
-  txSignature: string
+  txSignature?: string
   createdAt: string
-  explorerTxUrl: string
+  explorerTxUrl?: string
   likesCount: number
   likedByMe: boolean
   commentCount: number
@@ -146,24 +146,26 @@ export function PostCard({
             <TooltipContent>View</TooltipContent>
           </Tooltip>
 
-          <Tooltip>
-            <TooltipTrigger
-              render={
-                <Button
-                  nativeButton={false}
-                  variant="ghost"
-                  render={
-                    <Link href={post.explorerTxUrl} target="_blank" rel="noopener noreferrer" />
-                  }
-                  aria-label="Scan"
-                  className="inline-flex items-center rounded-full px-2 py-1 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
-                >
-                  <ExternalLink className="size-4" />
-                </Button>
-              }
-            />
-            <TooltipContent>Scan</TooltipContent>
-          </Tooltip>
+          {post.explorerTxUrl && (
+            <Tooltip>
+              <TooltipTrigger
+                render={
+                  <Button
+                    nativeButton={false}
+                    variant="ghost"
+                    render={
+                      <Link href={post.explorerTxUrl} target="_blank" rel="noopener noreferrer" />
+                    }
+                    aria-label="Scan"
+                    className="inline-flex items-center rounded-full px-2 py-1 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+                  >
+                    <ExternalLink className="size-4" />
+                  </Button>
+                }
+              />
+              <TooltipContent>Scan</TooltipContent>
+            </Tooltip>
+          )}
         </div>
       </div>
     </div>

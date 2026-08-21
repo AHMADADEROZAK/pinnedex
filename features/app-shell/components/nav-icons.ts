@@ -1,5 +1,6 @@
 import {
   Activity,
+  CandlestickChart,
   Coins,
   Compass,
   Gift,
@@ -20,7 +21,7 @@ export const navIcons = {
   claim: Coins,
   leaderboard: Trophy,
   "party-room": PartyPopper,
-  free: Gift,
+  "chart-candlestick": CandlestickChart,
   signal: Activity,
   profile: UserRound,
 } satisfies Record<string, LucideIcon>;

@@ -1,7 +1,8 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
-import { decrypt } from "@/lib/session";
+import { clerkMiddleware } from "@clerk/nextjs/server";
+
 import { adminBasePath } from "@/lib/admin-path";
 
 const protectedRoutes = ["/profile"];
@@ -9,10 +10,11 @@ const authRoutes = ["/login", "/register"];
 
 const WALLET_RE = /^\/([1-9A-HJ-NP-Za-km-z]{32,44})(\/.*)?$/;
 
-export async function proxy(request: NextRequest) {
+export default clerkMiddleware(async (auth, request: NextRequest) => {
   const path = request.nextUrl.pathname;
-  const cookie = request.cookies.get("session")?.value;
-  const session = await decrypt(cookie);
+  const { userId, sessionClaims } = await auth();
+  const role = (sessionClaims?.metadata as { role?: string } | undefined)
+    ?.role;
 
   const secretBase = adminBasePath();
   const isSecretPath =
@@ -29,10 +31,10 @@ export async function proxy(request: NextRequest) {
     path === "/member" || path.startsWith("/member/");
 
   if (isSecretPath) {
-    if (!session?.userId) {
+    if (!userId) {
       return NextResponse.redirect(new URL("/login", request.url));
     }
-    if (session.role !== "admin") {
+    if (role !== "admin") {
       return new NextResponse("Not found", { status: 404 });
     }
     const target = `${path.replace(secretBase, "/admin")}`;
@@ -40,7 +42,7 @@ export async function proxy(request: NextRequest) {
   }
 
   if (isMemberSecretPath) {
-    if (!session?.userId) {
+    if (!userId) {
       return NextResponse.redirect(new URL("/login", request.url));
     }
     const wallet = walletMatch![1];
@@ -69,17 +71,20 @@ export async function proxy(request: NextRequest) {
     return new NextResponse("Not found", { status: 404 });
   }
 
-  if (isProtected && !session?.userId) {
+  if (isProtected && !userId) {
     return NextResponse.redirect(new URL("/login", request.url));
   }
 
-  if (isAuthRoute && session?.userId) {
+  if (isAuthRoute && userId) {
     return NextResponse.redirect(new URL("/profile", request.url));
   }
 
   return NextResponse.next();
-}
+});
 
 export const config = {
-  matcher: ["/((?!api|_next/static|_next/image|.*\\.png$).*)"],
+  matcher: [
+    "/((?!api|_next/static|_next/image|.*\\.png$).*)",
+    "/__clerk/:path*",
+  ],
 };

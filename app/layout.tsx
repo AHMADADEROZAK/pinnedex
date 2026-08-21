@@ -1,16 +1,20 @@
+import { ClerkProvider } from "@clerk/nextjs"
 import { Geist_Mono, Inter, Oxanium } from "next/font/google"
 import { headers } from "next/headers"
 
 import "./globals.css"
-import { cn } from "@/lib/utils";
-import { ThemeProvider } from "@/features/theme";
-import { SolanaProvider, solanaRpcClientPath } from "@/features/solana";
-import { RouteTransitionProvider } from "@/features/app-shell/components/RouteTransitionProvider";
-import { Toaster } from "@/components/ui/toast";
+import { cn } from "@/lib/utils"
+import { ThemeProvider } from "@/features/theme"
+import { SolanaProvider, solanaRpcClientPath } from "@/features/solana"
+import { RouteTransitionProvider } from "@/features/app-shell/components/RouteTransitionProvider"
+import { Toaster } from "@/components/ui/toast"
 
-const oxaniumHeading = Oxanium({ subsets: ['latin'], variable: '--font-heading' });
+const oxaniumHeading = Oxanium({
+  subsets: ["latin"],
+  variable: "--font-heading",
+})
 
-const inter = Inter({ subsets: ['latin'], variable: '--font-sans' })
+const inter = Inter({ subsets: ["latin"], variable: "--font-sans" })
 
 const fontMono = Geist_Mono({
   subsets: ["latin"],
@@ -31,15 +35,23 @@ export default async function RootLayout({
     <html
       lang="en"
       suppressHydrationWarning
-      className={cn("antialiased", fontMono.variable, "font-sans", inter.variable, oxaniumHeading.variable)}
+      className={cn(
+        "antialiased",
+        fontMono.variable,
+        "font-sans",
+        inter.variable,
+        oxaniumHeading.variable
+      )}
     >
       <body>
-        <ThemeProvider>
-          <SolanaProvider endpoint={endpoint}>
-            <RouteTransitionProvider>{children}</RouteTransitionProvider>
-          </SolanaProvider>
-        </ThemeProvider>
-        <Toaster />
+        <ClerkProvider>
+          <ThemeProvider>
+            <SolanaProvider endpoint={endpoint}>
+              <RouteTransitionProvider>{children}</RouteTransitionProvider>
+            </SolanaProvider>
+          </ThemeProvider>
+          <Toaster />
+        </ClerkProvider>
       </body>
     </html>
   )

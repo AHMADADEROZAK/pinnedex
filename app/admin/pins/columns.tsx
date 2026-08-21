@@ -26,7 +26,7 @@ export type PinRow = {
   content: string
   likes: number
   comments: number
-  txSignature: string
+  txSignature?: string
   date: string
   postUrl: string
 }
@@ -135,10 +135,10 @@ export const pinColumns: LegacyColumnDef<PinRow>[] = [
     accessorKey: "txSignature",
     header: "Tx",
     cell: ({ row }) => {
-      const sig = row.getValue("txSignature") as string
+      const sig = row.getValue("txSignature") as string | undefined
       return (
         <span className="font-mono text-xs text-muted-foreground">
-          {sig.slice(0, 8)}...
+          {sig ? `${sig.slice(0, 8)}...` : "-"}
         </span>
       )
     },

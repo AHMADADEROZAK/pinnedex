@@ -4,8 +4,8 @@ export interface PostDocument extends Document {
   content: string
   images: string[]
   userId: Types.ObjectId
-  txSignature: string
-  solLamports: number
+  txSignature?: string
+  solLamports?: number
   likes: Types.ObjectId[]
   createdAt: Date
 }
@@ -16,7 +16,7 @@ const PostSchema = new mongoose.Schema<PostDocument>(
     images: [{ type: String }],
     userId: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true, index: true },
     txSignature: { type: String, unique: true, sparse: true },
-    solLamports: { type: Number, required: true },
+    solLamports: { type: Number },
     likes: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
   },
   { timestamps: true },

@@ -1,18 +1,15 @@
 "use client";
 
-import { useFormStatus } from "react-dom";
+import { SignOutButton } from "@clerk/nextjs";
 
 import { Button } from "@/components/ui/button";
-import { logout } from "@/features/auth/actions/auth";
 
 export function LogoutButton({ className }: { className?: string }) {
-  const { pending } = useFormStatus();
-
   return (
-    <form action={logout} className="w-full">
-      <Button type="submit" variant="outline" className={className} disabled={pending}>
-        {pending ? "Logging out..." : "Logout"}
+    <SignOutButton redirectUrl="/">
+      <Button variant="outline" className={className}>
+        Logout
       </Button>
-    </form>
+    </SignOutButton>
   );
 }

@@ -50,10 +50,44 @@ export function MobileNav({ links }: { links: HeaderLink[] }) {
           </SheetTitle>
         </SheetHeader>
 
-        <nav className="flex flex-1 flex-col gap-1 px-2">
+        <nav className="flex flex-1 flex-col gap-1 overflow-y-auto px-2">
           {links.map((link) => {
-            const active = pathname.startsWith(link.href);
             const Icon = navIcons[link.icon];
+
+            if (link.children?.length) {
+              return (
+                <div key={link.label} className="flex flex-col gap-1 py-1">
+                  <span className="flex items-center gap-2 px-3 text-xs font-medium uppercase tracking-wide text-muted-foreground/70">
+                    <span className="size-3.5 shrink-0">
+                      <Icon className="size-full" />
+                    </span>
+                    {link.label}
+                  </span>
+                  {link.children.map((child) => {
+                    const ChildIcon = navIcons[child.icon];
+                    const childActive = pathname.startsWith(child.href);
+                    return (
+                      <Link
+                        key={child.href}
+                        href={child.href}
+                        className={cn(
+                          "flex items-center gap-2 rounded-md px-3 py-2 pl-8 text-sm text-muted-foreground transition-colors hover:text-foreground",
+                          childActive &&
+                            "font-medium text-foreground",
+                        )}
+                      >
+                        <span className="size-3.5 shrink-0 text-muted-foreground">
+                          <ChildIcon className="size-full" />
+                        </span>
+                        {child.label}
+                      </Link>
+                    );
+                  })}
+                </div>
+              );
+            }
+
+            const active = pathname.startsWith(link.href);
             return (
               <Link
                 key={link.href}

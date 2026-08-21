@@ -2,23 +2,24 @@ import "server-only";
 import { cache } from "react";
 import { redirect, notFound } from "next/navigation";
 
-import { cookies } from "next/headers";
-import { decrypt } from "@/lib/session";
-import { connectToDatabase } from "@/lib/mongodb";
-import { User, type UserDocument } from "@/features/auth/models/User";
+import { auth } from "@clerk/nextjs/server";
+
+import { ensureUser } from "@/features/auth/server/ensure-user";
+import type { UserDocument } from "@/features/auth/models/User";
 
 export const verifySession = cache(async () => {
-  const cookie = (await cookies()).get("session")?.value;
-  const session = await decrypt(cookie);
+  const { userId } = await auth();
 
-  if (!session?.userId) {
+  if (!userId) {
     redirect("/login");
   }
 
+  const user = await ensureUser(userId);
+
   return {
     isAuth: true,
-    userId: String(session.userId),
-    role: session.role ?? "user",
+    userId,
+    role: (user?.role ?? "user") as "user" | "admin",
   };
 });
 
@@ -32,14 +33,10 @@ export const requireAdmin = cache(async () => {
 
 export const getSessionUser = cache(
   async (): Promise<UserDocument | null> => {
-    const cookie = (await cookies()).get("session")?.value;
-    const session = await decrypt(cookie);
+    const { userId } = await auth();
 
-    if (!session?.userId) return null;
+    if (!userId) return null;
 
-    await connectToDatabase();
-    const user = await User.findById(session.userId).lean().exec();
-
-    return user ? (user as UserDocument) : null;
+    return ensureUser(userId);
   },
 );

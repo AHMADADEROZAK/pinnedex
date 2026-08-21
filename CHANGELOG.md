@@ -13,6 +13,49 @@ Versi mengikuti [Semantic Versioning](https://semver.org/).
 
 ---
 
+## 2026-08-21
+
+### Added
+- **Clerk Authentication** (`@clerk/nextjs` v7, app `app_3IEAHQUWfticEgwhSfvbEm9F41n`):
+  - Register & login **gratis** via **X (Twitter) OAuth** sebagai validasi
+    anti-bot; halaman `/sign-in` & `/sign-up` (Clerk `<SignIn>`/`<SignUp>`),
+    `/login` & `/register` lama redirect ke sana.
+  - `ClerkProvider` di root layout; `clerkMiddleware` di `proxy.ts`
+    (matcher + `/__clerk/:path*`), rewrite path wallet & admin secret path
+    dipertahankan.
+  - Sinkronisasi user Clerk → MongoDB: field baru `User.clerkId`
+    (unique sparse), `ensureUser()` on-demand di DAL + webhook
+    `POST /api/clerk/webhook` (verifikasi svix + rate limit).
+  - Role admin dipetakan dari `ADMIN_EMAILS` → Mongo role +
+    `publicMetadata.role` Clerk (dibaca proxy via session claims).
+  - Komponen header `UserMenu`: `useAuth()` + `<UserButton>` /
+    tombol Sign In.
+- **Menu grup header** memakai shadcn base NavigationMenu: grup
+  **Presale** (Presale, Claim) dan **Tools** (Leaderboard, Party Room);
+  MobileNav menampilkan sub-item berindentasi.
+
+### Changed
+- **Community gratis total**: create pin/pin post/like/comment tanpa biaya —
+  fee 0.00025 SOL + verifikasi tx signature dihapus dari action `pinned`;
+  `Post.txSignature`/`solLamports` kini opsional (data lama tetap kompatibel);
+  tombol Scan (explorer) hanya tampil untuk post lama bermaterial tx.
+- `userId` pada Post/Comment/like kini tetap ObjectId Mongo (diambil dari
+  dokumen user hasil sinkronisasi Clerk) agar data lama valid.
+- Session internal jose cookie (`lib/session.ts`) digantikan penuh oleh
+  session Clerk; API DAL (`verifySession`, `getSessionUser`,
+  `requireAdmin`) dipertahankan sehingga pemanggil lain tidak berubah.
+- Logout via `<SignOutButton>` Clerk (server-side `signOut` tidak ada lagi
+  di v7).
+
+### Removed
+- Gerbang bayar registrasi & login: `verifyRegistrationPayment`,
+  `verifyLoginPayment`, model `LoginPayment`, komponen `FeePayment`,
+  `FeeCommitment`, `LoginForm`, `RegisterForm`, serta action
+  `signup`/`login`/`checkEmail`/`checkSignupEmail`.
+- `lib/session.ts` (jose EncryptJWT cookie) — tidak ada lagi pemakai.
+
+---
+
 ## 2026-08-06
 
 ### Added

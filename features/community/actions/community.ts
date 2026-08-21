@@ -1,14 +1,11 @@
 "use server"
 
 import { revalidatePath } from "next/cache"
-import { Connection, PublicKey } from "@solana/web3.js"
 import * as z from "zod"
 
 import { connectToDatabase } from "@/lib/mongodb"
-import { verifySession, requireAdmin } from "@/lib/dal"
+import { verifySession, requireAdmin, getSessionUser } from "@/lib/dal"
 import { enforceRateLimit } from "@/features/security"
-import { presaleConfig } from "@/features/presale/config"
-import { resolveRpcEndpoint } from "@/features/solana/server"
 import { communityConfig } from "@/features/community/config"
 import { Post } from "@/features/community/models/Post"
 import { Comment } from "@/features/community/models/Comment"
@@ -27,10 +24,6 @@ const PinnedSchema = z.object({
     .array(z.string())
     .max(communityConfig.maxImages)
     .default([]),
-  signature: z
-    .string()
-    .min(1, { error: "Transaction signature is required." })
-    .trim(),
 })
 
 export async function pinned(
@@ -42,12 +35,15 @@ export async function pinned(
     return { message: "Too many requests. Please wait a minute." }
   }
 
-  const session = await verifySession()
+  await verifySession()
+  const user = await getSessionUser()
+  if (!user) {
+    return { message: "Sesi tidak valid. Silakan login ulang." }
+  }
 
   const raw = {
     content: formData.get("content"),
     images: formData.getAll("images"),
-    signature: formData.get("signature"),
   }
 
   const validated = PinnedSchema.safeParse(raw)
@@ -55,105 +51,20 @@ export async function pinned(
     return { errors: validated.error.flatten().fieldErrors as Record<string, string[]> }
   }
 
-  const { content, images, signature } = validated.data
+  const { content, images } = validated.data
 
   await connectToDatabase()
-
-  const existing = await Post.findOne({ txSignature: signature }).exec()
-  if (existing) {
-    return {
-      errors: { signature: ["This transaction signature has already been used."] },
-    }
-  }
-
-  if (presaleConfig.collectionWallet) {
-    const verified = await verifyCommunityPayment(signature)
-    if (!verified.ok) {
-      return { errors: { signature: [verified.error] } }
-    }
-  }
 
   const post = new Post({
     content,
     images,
-    userId: session.userId,
-    txSignature: signature,
-    solLamports: communityConfig.feeLamports,
+    userId: user._id,
   })
   await post.save()
 
   revalidatePath("/community")
 
   return undefined
-}
-
-function toPublicKey(address: string): PublicKey | null {
-  try {
-    return new PublicKey(address)
-  } catch {
-    return null
-  }
-}
-
-async function verifyCommunityPayment(
-  txSignature: string,
-): Promise<{ ok: true; lamports: number } | { ok: false; error: string }> {
-  const signature = txSignature.trim()
-  if (!/^[1-9A-HJ-NP-Za-km-z]{87,88}$/.test(signature)) {
-    return { ok: false, error: "Invalid transaction signature." }
-  }
-
-  const collectionPk = toPublicKey(presaleConfig.collectionWallet)
-  if (!collectionPk) {
-    return { ok: false, error: "Collection wallet is not configured." }
-  }
-
-  const connection = new Connection(resolveRpcEndpoint(), "confirmed")
-
-  let tx: Awaited<ReturnType<typeof connection.getParsedTransaction>> = null
-  for (let i = 0; i < 8; i++) {
-    tx = await connection.getParsedTransaction(signature, {
-      maxSupportedTransactionVersion: 0,
-    })
-    if (tx) break
-    await new Promise((r) => setTimeout(r, 1000 * (i + 1)))
-  }
-
-  if (!tx) {
-    return { ok: false, error: "Transaction not found. Check the signature or wait a moment." }
-  }
-
-  if (tx.meta?.err !== null) {
-    return { ok: false, error: "Transaction failed on-chain." }
-  }
-
-  const message = tx.transaction.message
-  let lamports = 0
-
-  for (const ix of message.instructions) {
-    if ("parsed" in ix && ix.program === "system") {
-      const parsed = ix.parsed as {
-        type?: string
-        info?: { destination?: string; lamports?: number }
-      }
-      if (
-        parsed.type === "transfer" &&
-        parsed.info?.destination === collectionPk.toString()
-      ) {
-        lamports += parsed.info.lamports ?? 0
-      }
-    }
-  }
-
-  const requiredSol = communityConfig.feeSol
-  if (lamports < communityConfig.feeLamports) {
-    return {
-      ok: false,
-      error: `Payment not met. Send at least ${requiredSol} SOL to the collection wallet.`,
-    }
-  }
-
-  return { ok: true, lamports }
 }
 
 const CommentSchema = z.object({
@@ -175,7 +86,11 @@ export async function comment(
     return { message: "Too many requests. Please wait a minute." }
   }
 
-  const session = await verifySession()
+  await verifySession()
+  const user = await getSessionUser()
+  if (!user) {
+    return { errors: { postId: ["Sesi tidak valid. Silakan login ulang."] } }
+  }
 
   const validated = CommentSchema.safeParse({
     content: formData.get("content"),
@@ -199,7 +114,7 @@ export async function comment(
     content,
     images,
     postId,
-    userId: session.userId,
+    userId: user._id,
   })
   await c.save()
 
@@ -214,14 +129,16 @@ export async function toggleLike(postId: string) {
     return
   }
 
-  const session = await verifySession()
+  await verifySession()
+  const user = await getSessionUser()
+  if (!user) return
 
   await connectToDatabase()
 
   const post = await Post.findById(postId).exec()
   if (!post) return
 
-  const userId = session.userId
+  const userId = String(user._id)
   if (!post.likes) {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     ;(post as any).likes = []
