@@ -106,7 +106,7 @@ export default async function PostDetailPage({
               <div className={`grid gap-1 ${imageUrls.length === 1 ? "grid-cols-1" : "grid-cols-2"}`}>
                 {imageUrls.map((img) => (
                   <a key={img.key} href={img.url} target="_blank" rel="noopener noreferrer">
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    { }
                     <img
                       src={img.url}
                       alt="Post image"

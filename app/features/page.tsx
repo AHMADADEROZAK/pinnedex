@@ -14,9 +14,7 @@ import {
   Rocket,
   Search,
   ShieldCheck,
-  Tag,
   Trophy,
-  UserRound,
   Wallet,
   type LucideIcon,
 } from "lucide-react";

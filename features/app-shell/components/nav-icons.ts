@@ -3,7 +3,6 @@ import {
   CandlestickChart,
   Coins,
   Compass,
-  Gift,
   Newspaper,
   PartyPopper,
   Rocket,

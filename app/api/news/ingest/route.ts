@@ -1,6 +1,5 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 
-import { connectToDatabase } from "@/lib/mongodb";
 import { syncNews } from "@/features/news/server/fetch";
 
 export const dynamic = "force-dynamic";

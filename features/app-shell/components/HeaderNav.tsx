@@ -49,11 +49,11 @@ export function HeaderNav({ links }: { links: HeaderLink[] }) {
                 <NavigationMenuTrigger
                   className={cn(
                     underlineEffect,
-                    "hover:bg-transparent focus:bg-transparent data-[popup-open]:bg-transparent",
+                    "hover:bg-transparent focus:bg-transparent data-popup-open:bg-transparent",
                     active && "font-medium text-foreground after:scale-x-100",
                   )}
                 >
-                  <span className="size-3.5 shrink-0 text-muted-foreground">
+                  <span className="size-3.5 shrink-0 text-muted-foreground mx-2">
                     <Icon className="size-full" />
                   </span>
                   {link.label}
@@ -69,7 +69,7 @@ export function HeaderNav({ links }: { links: HeaderLink[] }) {
                             render={<Link href={child.href} />}
                             className={cn(
                               childActive &&
-                                "bg-muted/50 font-medium text-foreground",
+                              "bg-muted/50 font-medium text-foreground",
                             )}
                           >
                             <span className="size-3.5 shrink-0 text-muted-foreground">
@@ -95,7 +95,7 @@ export function HeaderNav({ links }: { links: HeaderLink[] }) {
                   underlineEffect,
                   "hover:bg-transparent focus-visible:bg-transparent data-[active=true]:bg-transparent",
                   active &&
-                    "bg-transparent font-medium text-foreground after:scale-x-100",
+                  "bg-transparent font-medium text-foreground after:scale-x-100",
                 )}
               >
                 <span className="size-3.5 shrink-0 text-muted-foreground">

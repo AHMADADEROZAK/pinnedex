@@ -12,7 +12,23 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // Aset tooling & agent — bukan kode aplikasi.
+    ".agents/**",
+    ".opencode/**",
   ]),
+  {
+    // Gambar remote dinamis (logo token pihak ketiga & upload user):
+    // host tidak bisa di-whitelist statis untuk next/image.
+    files: [
+      "app/community/**/*.tsx",
+      "features/community/components/**/*.tsx",
+      "features/news/components/**/*.tsx",
+      "features/signal/components/**/*.tsx",
+    ],
+    rules: {
+      "@next/next/no-img-element": "off",
+    },
+  },
 ]);
 
 export default eslintConfig;

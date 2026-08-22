@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { useForm } from "react-hook-form"
+import { useForm, useWatch } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { Loader2, Send } from "lucide-react"
 import * as z from "zod"
@@ -29,7 +29,7 @@ export function PostForm() {
     defaultValues: { content: "" },
   })
 
-  const contentValue = form.watch("content")
+  const contentValue = useWatch({ control: form.control, name: "content" })
 
   async function onSubmit(values: FormValues) {
     setPending(true)
@@ -85,7 +85,7 @@ export function PostForm() {
 
       <ImageUpload
         images={images}
-        onImagesChange={(all, _keys) => setImages(all)}
+        onImagesChange={(all) => setImages(all)}
       />
 
       <div className="flex items-center justify-between border-t pt-3">

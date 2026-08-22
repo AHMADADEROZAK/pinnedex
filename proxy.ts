@@ -12,9 +12,7 @@ const WALLET_RE = /^\/([1-9A-HJ-NP-Za-km-z]{32,44})(\/.*)?$/;
 
 export default clerkMiddleware(async (auth, request: NextRequest) => {
   const path = request.nextUrl.pathname;
-  const { userId, sessionClaims } = await auth();
-  const role = (sessionClaims?.metadata as { role?: string } | undefined)
-    ?.role;
+  const { userId } = await auth();
 
   const secretBase = adminBasePath();
   const isSecretPath =
@@ -32,11 +30,10 @@ export default clerkMiddleware(async (auth, request: NextRequest) => {
 
   if (isSecretPath) {
     if (!userId) {
-      return NextResponse.redirect(new URL("/login", request.url));
+      return NextResponse.redirect(new URL("/sign-in", request.url));
     }
-    if (role !== "admin") {
-      return new NextResponse("Not found", { status: 404 });
-    }
+    // Otorisasi admin diverifikasi di app/admin/layout.tsx via requireAdmin()
+    // (Mongo) karena session token default Clerk tidak memuat publicMetadata.
     const target = `${path.replace(secretBase, "/admin")}`;
     return NextResponse.rewrite(new URL(target, request.url));
   }

@@ -5,9 +5,8 @@ import { revalidatePath } from "next/cache";
 import * as z from "zod";
 
 import { connectToDatabase } from "@/lib/mongodb";
-import { verifySession } from "@/lib/dal";
+import { verifySession, getSessionUser } from "@/lib/dal";
 import { enforceRateLimit } from "@/features/security";
-import { User } from "@/features/auth/models/User";
 import { signalConfig, memberFeeLamports } from "@/features/signal/config";
 import { Subscription } from "@/features/signal/models/Subscription";
 import { verifyMemberPayment } from "@/features/signal/server/verify";
@@ -36,7 +35,10 @@ export async function subscribeMember(
     return { message: "Too many requests. Please wait a minute." };
   }
 
-  const session = await verifySession();
+  const sessionUser = await getSessionUser();
+  if (!sessionUser) {
+    return { message: "Silakan login terlebih dahulu." };
+  }
 
   const validated = SubscribeSchema.safeParse({
     plan: formData.get("plan"),
@@ -56,12 +58,9 @@ export async function subscribeMember(
 
   await connectToDatabase();
 
-  const user = await User.findById(session.userId).exec();
-  if (!user) {
-    return { message: "User not found." };
-  }
-
-  const ownsWallet = user.wallets.some((w) => w.address === walletAddress);
+  const ownsWallet = sessionUser.wallets.some(
+    (w) => w.address === walletAddress,
+  );
   if (!ownsWallet) {
     return {
       errors: { walletAddress: ["Link this wallet to your account first."] },
@@ -84,7 +83,7 @@ export async function subscribeMember(
   const days = plan === "weekly" ? 7 : 30;
   const now = new Date();
   const sub = new Subscription({
-    userId: session.userId,
+    userId: sessionUser._id,
     walletAddress,
     plan,
     amountLamports: verified.lamports,
@@ -105,12 +104,13 @@ export async function cancelMembership(): Promise<void> {
   const limit = await enforceRateLimit();
   if (!limit.allowed) return;
 
-  const session = await verifySession();
+  const sessionUser = await getSessionUser();
+  if (!sessionUser) return;
 
   await connectToDatabase();
 
   await Subscription.updateMany(
-    { userId: session.userId, status: "active" },
+    { userId: sessionUser._id, status: "active" },
     { $set: { status: "expired" } },
   ).exec();
 
@@ -136,7 +136,10 @@ export async function connectTelegram(
     return { message: "Too many requests. Please wait a minute." };
   }
 
-  const session = await verifySession();
+  const sessionUser = await getSessionUser();
+  if (!sessionUser) {
+    return { message: "Silakan login terlebih dahulu." };
+  }
 
   const phone = PhoneSchema.safeParse(formData.get("phone"));
   if (!phone.success) {
@@ -157,7 +160,7 @@ export async function connectTelegram(
   await connectToDatabase();
 
   const sub = await Subscription.findOne({
-    userId: session.userId,
+    userId: sessionUser._id,
     status: "active",
     expiresAt: { $gt: new Date() },
   })
@@ -208,12 +211,13 @@ export async function disconnectTelegram(): Promise<void> {
   const limit = await enforceRateLimit();
   if (!limit.allowed) return;
 
-  const session = await verifySession();
+  const sessionUser = await getSessionUser();
+  if (!sessionUser) return;
 
   await connectToDatabase();
 
   await Subscription.updateMany(
-    { userId: session.userId, status: "active" },
+    { userId: sessionUser._id, status: "active" },
     {
       $set: { telegramStatus: "pending" },
       $unset: {

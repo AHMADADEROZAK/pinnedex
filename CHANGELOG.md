@@ -13,6 +13,40 @@ Versi mengikuti [Semantic Versioning](https://semver.org/).
 
 ---
 
+## 2026-08-22
+
+### Changed
+- **Halaman Signals terbuka** bagi semua user yang login — kartu
+  "Subscribe to Unlock" dihapus dari `/member/signals`; paywall langganan
+  kini hanya menjaga fitur **Telegram membership**
+  (`/member/member`, connect & broadcast).
+- Logo sidebar member memakai gambar `public/idd.jpeg`.
+
+### Fixed
+- **Akses jalur admin rahasia (`/pin-0367`) kini berfungsi**: pengecekan role
+  dipindah dari middleware (yang membaca `sessionClaims.metadata` — klaim
+  tersebut tidak ada di session token default Clerk) ke
+  `app/admin/layout.tsx` via `requireAdmin()` berbasis MongoDB; middleware
+  tetap menolak anonim dengan redirect ke `/sign-in`.
+- **Sinkronisasi Clerk→Mongo idempotent & tahan race**: retry pada duplicate
+  key (E11000) + refetch `$or [clerkId, email]`; webhook `user.created/
+  updated` mendelegasi ke helper bersama `syncClerkUser()` sehingga logika
+  upsert tidak terduplikasi dan tidak lagi menabrak unique index email.
+- **Role admin tidak pernah diturunkan otomatis** saat merge akun lama/baru;
+  upgrade manual-list tetap otomatis. `ADMIN_EMAILS` dikoreksi ke
+  `pinesuru@gmail.com`.
+- **Query Subscription/Purchase memakai ObjectId Mongo** (`getSessionUser()
+  ._id`) alih-alih Clerk ID — memperbaiki `BSONError ... 24 character hex
+  string` di `MemberLayout`, `hasActiveMembership`, `hasVerifiedPurchase`,
+  serta action subscribe/cancel/connect/disconnect Telegram.
+- **Seluruh warning ESLint dibersihkan (33 → 0)**: import nganggur dihapus,
+  `form.watch()` diganti `useWatch()` (kompatibel React Compiler), direktori
+  tooling `.agents/` & `.opencode/` diabaikan lint, dan rule
+  `no-img-element` di-exempt terpusat untuk komponen bert-media remote
+  dinamis.
+
+---
+
 ## 2026-08-21
 
 ### Added

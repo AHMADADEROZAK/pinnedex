@@ -13,7 +13,6 @@ import {
 } from "@solana/web3.js";
 import { readFileSync } from "fs";
 import { homedir } from "os";
-import { createHash } from "crypto";
 
 const RPC_URL = "https://api.devnet.solana.com";
 const TOKEN_MINT = new PublicKey("8PydPRxUmKE88V2kurQyMCA33V1Ny4QBgSPrxNQsdQip");

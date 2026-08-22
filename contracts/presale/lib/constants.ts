@@ -1,4 +1,4 @@
-import { address, type Address } from "gill";
+import { type Address } from "gill";
 import type { PresaleConfig, VestingAccount } from "../target/types/presale.js";
 
 export const PRESALE_PROGRAM_ID = "6t8hLg3DvTYzXkm3gfNhMfgqh2x1akjjM2zwv8SMprA3" as Address;

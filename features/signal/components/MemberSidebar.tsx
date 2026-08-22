@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import {
@@ -12,11 +13,8 @@ import {
   Bell,
   Send,
   Activity,
-  Crown,
-  CrownIcon,
   Clock,
   Globe,
-  TagPlusIcon,
   FilePenIcon,
   Newspaper,
 } from "lucide-react";
@@ -75,13 +73,16 @@ export function MemberSidebar({
               render={<Link href={base} />}
               className="data-active:bg-transparent data-active:text-sidebar-accent-foreground"
             >
-              <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
-                {isMember ? (
-                  <CrownIcon className="size-4" />
-                ) : (
-                  <Crown className="size-4" />
-                )}
-              </div>
+
+              <Image
+                src="/suru-fav.png"
+                width={16}
+                height={16}
+                priority
+                alt="pinnedex"
+                className="size-8 rounded-lg object-cover"
+              />
+
               <div className="grid flex-1 text-left text-sm leading-tight">
                 <span className="truncate font-heading font-semibold">
                   Pinnedex

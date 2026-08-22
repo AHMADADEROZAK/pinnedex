@@ -284,7 +284,7 @@ export function PinDialog() {
               <div className="flex flex-wrap gap-2">
                 {images.map((img, idx) => (
                   <div key={img.key} className="group relative">
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    { }
                     <img
                       src={img.preview}
                       alt="Preview"

@@ -1,10 +1,6 @@
-import { hasActiveMembership } from "@/features/signal";
 import { detectWhaleSignals, getRobinhoodRadar } from "@/features/signal";
 import { searchPairs } from "@/features/signal/client";
 import type { WhaleSignal, RadarToken } from "@/features/signal";
-import { SubscribeForm } from "@/features/signal/components/SubscribeForm";
-import { signalConfig } from "@/features/signal";
-import { cookies } from "next/headers";
 
 const SOLANA = "solana";
 
@@ -42,35 +38,6 @@ async function fetchRadar(): Promise<RadarToken[]> {
 }
 
 export default async function SignalsPage() {
-  const isMember = await hasActiveMembership();
-
-  if (!isMember) {
-    const wallet = (await cookies()).get("member-wallet")?.value ?? "";
-
-    return (
-      <div className="flex flex-col gap-6 text-sm leading-loose">
-        <h1 className="font-heading text-2xl font-semibold tracking-tight">
-          Signals
-        </h1>
-        <div className="max-w-md rounded-lg border bg-card p-6 text-card-foreground">
-          <h2 className="mb-2 font-heading text-lg font-semibold">
-            Subscribe to Unlock
-          </h2>
-          <p className="mb-4 text-muted-foreground">
-            Whale Detector, Robinhood Radar, and CTO takeover alerts. Weekly or
-            monthly subscription paid in SOL.
-          </p>
-          <SubscribeForm
-            linkedWallets={wallet ? [wallet] : []}
-            feeWeeklySol={signalConfig.weeklyFeeSol}
-            feeMonthlySol={signalConfig.monthlyFeeSol}
-            collectionWallet={signalConfig.collectionWallet}
-          />
-        </div>
-      </div>
-    );
-  }
-
   const [whaleSignals, radar] = await Promise.all([
     fetchWhaleSignals(),
     fetchRadar(),

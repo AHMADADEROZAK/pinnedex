@@ -89,7 +89,7 @@ export function PostCard({
           >
             {post.images.map((img) => (
               <a key={img.key} href={img.url} target="_blank" rel="noopener noreferrer">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
+                { }
                 <img
                   src={img.url}
                   alt="Post image"

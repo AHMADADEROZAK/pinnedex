@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useRef } from "react"
-import { ImagePlus, X, Loader2 } from "lucide-react"
+import { ImagePlus, Loader2 } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 import {

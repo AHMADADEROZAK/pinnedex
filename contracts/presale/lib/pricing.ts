@@ -1,4 +1,4 @@
-import { STAGES, LAMPORTS_PER_SOL } from "./constants.js";
+import { STAGES } from "./constants.js";
 
 export type StageInfo = {
   index: number;

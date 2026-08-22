@@ -2,18 +2,18 @@ import "server-only";
 
 import { cache } from "react";
 import { redirect } from "next/navigation";
-import { Types } from "mongoose";
 
 import { connectToDatabase } from "@/lib/mongodb";
-import { verifySession } from "@/lib/dal";
+import { getSessionUser } from "@/lib/dal";
 import { Subscription } from "@/features/signal/models/Subscription";
 
 export const hasActiveMembership = cache(async () => {
-  const session = await verifySession();
+  const user = await getSessionUser();
+  if (!user) redirect("/login");
   await connectToDatabase();
 
   const sub = await Subscription.findOne({
-    userId: new Types.ObjectId(session.userId),
+    userId: user._id,
     status: "active",
     expiresAt: { $gt: new Date() },
   })

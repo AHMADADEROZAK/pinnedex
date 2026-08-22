@@ -33,50 +33,121 @@ async function syncClerkRole(clerkId: string, role: UserRole) {
   }
 }
 
-export const ensureUser = cache(
-  async (clerkUserId: string): Promise<UserDocument | null> => {
-    await connectToDatabase();
+type ClerkWeb3Wallet = string | { web3Wallet?: string } | null | undefined;
 
-    const existing = await User.findOne({ clerkId: clerkUserId }).exec();
+function extractWeb3Wallets(clerkUser: {
+  web3Wallets?: ClerkWeb3Wallet[];
+}): string[] {
+  return (clerkUser.web3Wallets ?? [])
+    .map((w) => (typeof w === "string" ? w : w?.web3Wallet ?? ""))
+    .filter(Boolean);
+}
+
+function fallbackIdentity(
+  clerkUserId: string,
+  email: string,
+  wallets: string[],
+): { email: string; nameHint: string } {
+  if (email) return { email: email.toLowerCase(), nameHint: "" };
+  const wallet = wallets[0] ?? "";
+  const identifier = wallet || clerkUserId;
+  return {
+    email: `${identifier.toLowerCase()}@wallets.pinnedex.internal`,
+    nameHint: wallet ? `${wallet.slice(0, 4)}...${wallet.slice(-4)}` : "Member",
+  };
+}
+
+function isDuplicateKeyError(err: unknown): boolean {
+  return (
+    typeof err === "object" &&
+    err !== null &&
+    "code" in err &&
+    (err as { code?: unknown }).code === 11000
+  );
+}
+
+function resolveRole(email: string, currentRole?: UserRole): UserRole {
+  if (currentRole === "admin") return "admin";
+  return roleForEmail(email);
+}
+
+export async function syncClerkUser(
+  clerkUserId: string,
+): Promise<UserDocument | null> {
+  await connectToDatabase();
+
+  let primaryEmail = "";
+  let wallets: string[] = [];
+  let name = "";
+  try {
+    const client = await clerkClient();
+    const clerkUser = await client.users.getUser(clerkUserId);
+    primaryEmail = clerkUser.primaryEmailAddress?.emailAddress ?? "";
+    wallets = extractWeb3Wallets(clerkUser);
+    name =
+      [clerkUser.firstName, clerkUser.lastName].filter(Boolean).join(" ") ||
+      clerkUser.username ||
+      "";
+  } catch {
+    return null;
+  }
+
+  const identity = fallbackIdentity(clerkUserId, primaryEmail, wallets);
+  const email = identity.email;
+  name = name || identity.nameHint;
+
+  for (let attempt = 0; attempt < 3; attempt += 1) {
+    const existing = (await User.findOne({
+      clerkId: clerkUserId,
+    }).exec()) as UserDocument | null;
     if (existing) {
-      if (roleForEmail(existing.email) === "admin" && existing.role !== "admin") {
-        existing.role = "admin";
+      const role = resolveRole(existing.email, existing.role);
+      if (existing.role !== role) {
+        existing.role = role;
         await existing.save();
-        await syncClerkRole(clerkUserId, "admin");
       }
-      return existing as UserDocument;
+      await syncClerkRole(clerkUserId, role);
+      return existing;
     }
 
-    let email = "";
-    let name = "";
-    try {
-      const client = await clerkClient();
-      const clerkUser = await client.users.getUser(clerkUserId);
-      email = clerkUser.primaryEmailAddress?.emailAddress ?? "";
-      name =
-        [clerkUser.firstName, clerkUser.lastName].filter(Boolean).join(" ") ||
-        clerkUser.username ||
-        email.split("@")[0];
-    } catch {
-      return null;
-    }
-
-    if (!email) return null;
-
-    const role = roleForEmail(email);
-
-    const byEmail = await User.findOne({ email }).exec();
+    const byEmail = (await User.findOne({
+      email,
+    }).exec()) as UserDocument | null;
     if (byEmail) {
+      const role = resolveRole(byEmail.email, byEmail.role);
       byEmail.clerkId = clerkUserId;
       byEmail.role = role;
-      await byEmail.save();
+      try {
+        await byEmail.save();
+      } catch (err) {
+        if (!isDuplicateKeyError(err)) throw err;
+        continue;
+      }
       await syncClerkRole(clerkUserId, role);
-      return byEmail as UserDocument;
+      return byEmail;
     }
 
-    const user = new User({ clerkId: clerkUserId, email, name, role });
-    await user.save();
-    await syncClerkRole(clerkUserId, role);
-    return user as UserDocument;
-  },
-);
+    const role = roleForEmail(email);
+    try {
+      const user = await User.create({
+        clerkId: clerkUserId,
+        email,
+        name,
+        role,
+      });
+      await syncClerkRole(clerkUserId, role);
+      return user as UserDocument;
+    } catch (err) {
+      if (!isDuplicateKeyError(err)) throw err;
+    }
+  }
+
+  console.error(
+    `Sinkronisasi user Clerk ${clerkUserId} gagal setelah beberapa percobaan.`,
+  );
+  return (await User.findOne({
+    clerkId: clerkUserId,
+  }).exec()) as UserDocument | null;
+}
+
+export const ensureUser = cache(syncClerkUser);

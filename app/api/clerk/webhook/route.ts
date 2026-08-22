@@ -5,16 +5,9 @@ import type { WebhookEvent } from "@clerk/nextjs/server";
 import { enforceRateLimit } from "@/features/security";
 import { connectToDatabase } from "@/lib/mongodb";
 import { User } from "@/features/auth/models/User";
+import { syncClerkUser } from "@/features/auth/server/ensure-user";
 
 export const dynamic = "force-dynamic";
-
-function roleForEmail(email: string): "user" | "admin" {
-  const admins = (process.env.ADMIN_EMAILS ?? "")
-    .split(",")
-    .map((e) => e.trim().toLowerCase())
-    .filter(Boolean);
-  return admins.includes(email.toLowerCase()) ? "admin" : "user";
-}
 
 export async function POST(req: NextRequest): Promise<NextResponse> {
   const limit = await enforceRateLimit();
@@ -52,25 +45,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
   switch (event.type) {
     case "user.created":
     case "user.updated": {
-      const { id, email_addresses, first_name, last_name, username } =
-        event.data;
-      const email = email_addresses.find((e) => e.id === event.data.primary_email_address_id)?.email_address ?? email_addresses[0]?.email_address;
-      if (!email) break;
-
-      const name =
-        [first_name, last_name].filter(Boolean).join(" ") ||
-        username ||
-        email.split("@")[0];
-      const role = roleForEmail(email);
-
-      await User.findOneAndUpdate(
-        { clerkId: id },
-        {
-          $set: { clerkId: id, email: email.toLowerCase(), name, role },
-          $setOnInsert: { wallets: [] },
-        },
-        { upsert: true },
-      ).exec();
+      await syncClerkUser(event.data.id);
       break;
     }
     case "user.deleted": {

@@ -20,8 +20,6 @@ import {
   findSolVaultPda,
   findTokenVaultPda,
   getProgramId,
-  SPINE_MINT,
-  TOKEN_PROGRAM,
 } from "@/features/presale/lib/pda";
 import { presaleConfig, presaleRpcEndpoint } from "@/features/presale/config";
 

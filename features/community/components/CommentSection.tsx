@@ -10,7 +10,6 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { comment } from "@/features/community/actions/community"
-import { type FormState } from "@/lib/definitions"
 
 interface CommentData {
   _id: string

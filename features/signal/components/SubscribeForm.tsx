@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { SystemProgram, Transaction, LAMPORTS_PER_SOL, PublicKey } from "@solana/web3.js";
 import { useConnection, useWallet } from "@solana/wallet-adapter-react";
@@ -59,7 +59,7 @@ export function SubscribeForm({
     },
   });
 
-  const plan = form.watch("plan");
+  const plan = useWatch({ control: form.control, name: "plan" });
   const feeSol = feeMap[plan];
   const lamports = Math.round(feeSol * LAMPORTS_PER_SOL);
 

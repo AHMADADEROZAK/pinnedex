@@ -1,7 +1,8 @@
 import { cookies } from "next/headers";
+import { redirect } from "next/navigation";
 
 import { connectToDatabase } from "@/lib/mongodb";
-import { verifySession } from "@/lib/dal";
+import { getSessionUser } from "@/lib/dal";
 import {
   hasActiveMembership,
   signalConfig,
@@ -11,7 +12,8 @@ import { TelegramConnect } from "@/features/signal/components/TelegramConnect";
 import { SubscribeForm } from "@/features/signal/components/SubscribeForm";
 
 export default async function TelegramPage() {
-  const session = await verifySession();
+  const sessionUser = await getSessionUser();
+  if (!sessionUser) redirect("/login");
   const isMember = await hasActiveMembership();
 
   if (!isMember) {
@@ -49,7 +51,7 @@ export default async function TelegramPage() {
   try {
     await connectToDatabase();
     const sub = await Subscription.findOne({
-      userId: session.userId,
+      userId: sessionUser._id,
       status: "active",
       expiresAt: { $gt: new Date() },
     })
