@@ -44,3 +44,11 @@ vesting
 /contracts/*
 !/contracts/
 !/contracts/presale/
+.agents
+skills-lock.json
+workflow.md
+.opencode
+.playwright-mcp
+logs
+arsitektur.md
+opencode.json
