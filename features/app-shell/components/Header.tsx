@@ -55,35 +55,35 @@ export async function Header() {
     : navLinks.filter((link) => !link.auth);
 
   return (
-    <header className="sticky top-0 z-50 border-b bg-background">
-      <div className="px-4 py-2 md:px-8">
-      <ContractAddressBanner />
-      <div className="grid grid-cols-[auto_1fr_auto] items-center gap-2 md:gap-6">
-        <Link href="/" className="flex items-center gap-2">
-          <Image
-            src="/pinesuru.png"
-            alt="Pinnedex"
-            width={351}
-            height={351}
-            className="h-7 w-auto rounded"
-          />
-          <h1 className="font-heading text-lg font-semibold tracking-tight">
-            Pinnedex
-          </h1>
-        </Link>
-        <div className="hidden justify-center md:flex">
-          <HeaderNav links={visibleLinks} />
-        </div>
-        <div className="flex items-center justify-end gap-2">
-          <div className="hidden items-center gap-2 md:flex">
-            <WalletBalance />
-            <ConnectWallet />
+    <>
+      <header className="sticky top-0 z-50 border-b bg-background px-4 py-2 md:px-8">
+        <div className="grid grid-cols-[auto_1fr_auto] items-center gap-2 md:gap-6">
+          <Link href="/" className="flex items-center gap-2">
+            <Image
+              src="/pinesuru.png"
+              alt="Pinnedex"
+              width={351}
+              height={351}
+              className="h-7 w-auto rounded"
+            />
+            <h1 className="font-heading text-lg font-semibold tracking-tight">
+              Pinnedex
+            </h1>
+          </Link>
+          <div className="hidden justify-center md:flex">
+            <HeaderNav links={visibleLinks} />
           </div>
-          <UserMenu />
-          <MobileNav links={visibleLinks} />
+          <div className="flex items-center justify-end gap-2">
+            <div className="hidden items-center gap-2 md:flex">
+              <WalletBalance />
+              <ConnectWallet />
+            </div>
+            <UserMenu />
+            <MobileNav links={visibleLinks} />
+          </div>
         </div>
-      </div>
-      </div>
-    </header>
+      </header>
+      <ContractAddressBanner />
+    </>
   );
 }
