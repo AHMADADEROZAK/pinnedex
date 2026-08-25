@@ -4,6 +4,7 @@ import Link from "next/link";
 import { ConnectWallet } from "@/features/wallet/components/ConnectWallet";
 import { WalletBalance } from "@/features/wallet/components/WalletBalance";
 import { getSessionUser } from "@/lib/dal";
+import { ContractAddressBanner } from "./ContractAddressBanner";
 import { HeaderNav, type HeaderLink } from "./HeaderNav";
 import { MobileNav } from "./MobileNav";
 import { UserMenu } from "./UserMenu";
@@ -54,7 +55,9 @@ export async function Header() {
     : navLinks.filter((link) => !link.auth);
 
   return (
-    <header className="sticky top-0 z-50 border-b bg-background px-4 py-2 md:px-8">
+    <header className="sticky top-0 z-50 border-b bg-background">
+      <div className="px-4 py-2 md:px-8">
+      <ContractAddressBanner />
       <div className="grid grid-cols-[auto_1fr_auto] items-center gap-2 md:gap-6">
         <Link href="/" className="flex items-center gap-2">
           <Image
@@ -79,6 +82,7 @@ export async function Header() {
           <UserMenu />
           <MobileNav links={visibleLinks} />
         </div>
+      </div>
       </div>
     </header>
   );
