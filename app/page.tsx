@@ -21,7 +21,7 @@ const features: { icon: LucideIcon; title: string; description: string }[] = [
     icon: Rocket,
     title: "Presale access",
     description:
-      "Buy $PINE early at the presale price, with per-purchase limits.",
+      "Buy $SPINE early at the presale price, with per-purchase limits.",
   },
   {
     icon: LayoutDashboard,
@@ -84,7 +84,7 @@ const roadmap = [
   {
     phase: "Phase 2",
     title: "Airdrop",
-    items: ["Allocate $PINE per wallet", "Distribute tokens after the presale"],
+    items: ["Allocate $SPINE per wallet", "Distribute tokens after the presale"],
   },
   {
     phase: "Phase 3",
@@ -310,10 +310,10 @@ export default async function Page() {
             {[
               {
                 q: "What is pinnedex?",
-                a: "pinnedex is a presale-gated app: buy $PINE tokens early at the presale price and unlock a DexScreener-powered dashboard.",
+                a: "pinnedex is a presale-gated app: buy $SPINE tokens early at the presale price and unlock a DexScreener-powered dashboard.",
               },
               {
-                q: "How do I buy $PINE tokens?",
+                q: "How do I buy $SPINE tokens?",
                 a: "Register, link a Solana wallet, then send SOL to the collection wallet. Your purchase is verified on-chain before it counts.",
               },
               {
@@ -335,8 +335,8 @@ export default async function Page() {
                 a: "Funds go to the public treasury wallet and are only used to create the liquidity pool after listing. The balance is visible on-chain.",
               },
               {
-                q: "Is $PINE an SPL token?",
-                a: "$PINE is currently tracked off-chain per wallet. Token distribution (airdrop) is planned after the presale.",
+                q: "Is $SPINE an SPL token?",
+                a: "$SPINE is currently tracked off-chain per wallet. Token distribution (airdrop) is planned after the presale.",
               },
             ].map((faq) => (
               <details

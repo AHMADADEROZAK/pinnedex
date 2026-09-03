@@ -151,7 +151,7 @@ const groups: FeatureGroup[] = [
         icon: Gift,
         title: "Presale",
         description:
-          "Buy $PINE early at presale price with per-purchase limits and on-chain verification.",
+          "Buy $SPINE early at presale price with per-purchase limits and on-chain verification.",
       },
       {
         icon: Trophy,
