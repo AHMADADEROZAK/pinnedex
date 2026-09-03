@@ -245,7 +245,7 @@ export function TelegramConnect({
                 </span>
               </span>
             </div>
-            {!connected ? (
+            {/* {!connected ? (
               <ConnectWallet />
             ) : (
               <Button
@@ -262,7 +262,7 @@ export function TelegramConnect({
                 )}
                 {pending ? "Connecting…" : "Connect"}
               </Button>
-            )}
+            )} */}
           </div>
 
           {error && (

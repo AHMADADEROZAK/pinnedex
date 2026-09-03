@@ -73,7 +73,7 @@ export function MobileNav({ links }: { links: HeaderLink[] }) {
                         className={cn(
                           "flex items-center gap-2 rounded-md px-3 py-2 pl-8 text-sm text-muted-foreground transition-colors hover:text-foreground",
                           childActive &&
-                            "font-medium text-foreground",
+                          "font-medium text-foreground",
                         )}
                       >
                         <span className="size-3.5 shrink-0 text-muted-foreground">
@@ -107,10 +107,10 @@ export function MobileNav({ links }: { links: HeaderLink[] }) {
           })}
         </nav>
 
-        <div className="flex flex-col gap-2 border-t p-4">
+        {/* <div className="flex flex-col gap-2 border-t p-4">
           <WalletBalance />
           <ConnectWallet />
-        </div>
+        </div> */}
       </SheetContent>
     </Sheet>
   );

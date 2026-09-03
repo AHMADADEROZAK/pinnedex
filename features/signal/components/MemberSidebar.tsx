@@ -11,8 +11,6 @@ import {
   BarChart3,
   Search,
   Bell,
-  Send,
-  Activity,
   Clock,
   Globe,
   FilePenIcon,
@@ -32,7 +30,6 @@ import {
   SidebarMenuItem,
   SidebarRail,
 } from "@/components/ui/sidebar";
-import { cn } from "@/lib/utils";
 
 interface MemberSidebarProps {
   wallet: string;
@@ -59,8 +56,6 @@ export function MemberSidebar({
     { href: `${base}/metas`, label: "Metas", icon: BarChart3 },
     { href: `${base}/search`, label: "Search", icon: Search },
     { href: `${base}/news`, label: "News", icon: Newspaper },
-    { href: `${base}/signals`, label: "Signals", icon: Activity, member: true },
-    { href: `${base}/member`, label: "Telegram", icon: Send, member: true },
   ];
 
   return (
@@ -115,10 +110,6 @@ export function MemberSidebar({
                       isActive={active}
                       tooltip={item.label}
                       render={<Link href={item.href} />}
-                      className={cn(
-                        item.member && isMember && "text-green-600",
-                        item.member && !isMember && "text-amber-500",
-                      )}
                     >
                       <item.icon />
                       <span>{item.label}</span>

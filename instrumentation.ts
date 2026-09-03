@@ -15,6 +15,9 @@ export async function register() {
     const { startDexIngestion } = await import("@/features/signal/ingest");
     startDexIngestion();
 
+    const { startMarketSync } = await import("@/features/presale/server/market-sync");
+    startMarketSync();
+
     const { startNewsSync } = await import("@/features/news/server/fetch");
     startNewsSync();
 

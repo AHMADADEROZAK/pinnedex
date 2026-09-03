@@ -255,7 +255,7 @@ export function BuyForm({
           </div>
         </div>
 
-        {!connected ? (
+        {/* {!connected ? (
           <div className="flex flex-col gap-2">
             <ConnectWallet />
             {linkedWallets.length === 0 && (
@@ -269,7 +269,7 @@ export function BuyForm({
             <Send className="size-4" />
             {sending ? "Sending..." : `Buy with ${solNeeded.toFixed(6)} SOL`}
           </Button>
-        )}
+        )} */}
 
         {error && (
           <AlertDialog open onOpenChange={() => setError(null)}>

@@ -206,7 +206,7 @@ export function SubscribeForm({
           </span>
         </div>
 
-        {!connected ? (
+        {/* {!connected ? (
           <ConnectWallet />
         ) : (
           <Button
@@ -222,7 +222,7 @@ export function SubscribeForm({
             )}
             {pending ? "Subscribing…" : "Subscribe"}
           </Button>
-        )}
+        )} */}
       </div>
 
       {serverError && (

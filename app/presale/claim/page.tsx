@@ -34,7 +34,7 @@ export default async function ClaimPage() {
         </div>
 
         <div className="flex flex-col gap-4">
-          <div className="rounded-md border bg-card p-4">
+          {/* <div className="rounded-md border bg-card p-4">
             <div className="mb-4 flex items-center gap-2">
               <Wallet className="size-4 text-primary" />
               <h2 className="text-sm font-semibold tracking-tight">Connect Wallet</h2>
@@ -49,9 +49,9 @@ export default async function ClaimPage() {
                 Linked: {linkedWallets.join(", ")}
               </p>
             )}
-          </div>
+          </div> */}
 
-          <AllocationSection />
+          {/* <AllocationSection /> */}
         </div>
       </main>
     </div>

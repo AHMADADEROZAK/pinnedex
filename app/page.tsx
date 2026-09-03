@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import {
   Gift,
   LayoutDashboard,
@@ -11,15 +12,9 @@ import {
 
 import { Header } from "@/features/app-shell";
 import { Button } from "@/components/ui/button";
-import {
-  TrustSection,
-  getPresaleUsdPrices,
-  presaleConfig,
-} from "@/features/presale";
-import { Purchase } from "@/features/presale/models/Purchase";
-import { getTreasuryBalance } from "@/features/presale/server/treasury";
-import { connectToDatabase } from "@/lib/mongodb";
-import { formatUsd } from "@/lib/format";
+import { presaleConfig } from "@/features/presale";
+import { getLatestMarketSnapshot } from "@/features/presale/server/market-stats";
+import { formatCompact, formatUsd } from "@/lib/format";
 
 const features: { icon: LucideIcon; title: string; description: string }[] = [
   {
@@ -108,18 +103,8 @@ const roadmap = [
 ];
 
 export default async function Page() {
-  await connectToDatabase();
-  const [treasury, verifiedAgg, { tokenPriceUsd }] = await Promise.all([
-    getTreasuryBalance(),
-    Purchase.aggregate<{ _id: null; total: number; count: number }>([
-      { $match: { status: "verified" } },
-      { $group: { _id: null, total: { $sum: "$solLamports" }, count: { $sum: 1 } } },
-    ]).exec(),
-    getPresaleUsdPrices(),
-  ]);
+  const market = await getLatestMarketSnapshot();
 
-  const totalSolCollected = (verifiedAgg[0]?.total ?? 0) / 1e9;
-  const verifiedCount = verifiedAgg[0]?.count ?? 0;
   const endsAt = presaleConfig.end;
 
   return (
@@ -130,47 +115,70 @@ export default async function Page() {
           <div className="flex flex-col gap-3">
             <span className="mx-auto inline-flex items-center gap-2 rounded-full border bg-card px-3 py-1 text-xs font-medium text-muted-foreground">
               <span className="size-1.5 rounded-full bg-emerald-500" />
-              Presale live on Solana
+              Live on Solana
             </span>
             <h1 className="font-heading text-4xl font-semibold tracking-tight sm:text-5xl">
               Pinnedex
             </h1>
-              <p className="mx-auto max-w-xl text-sm leading-relaxed text-muted-foreground">
-                Buy $PINE at presale prices and unlock a DexScreener-powered
-                dashboard. Powered by pinesuru — token presale gated app on
-                Solana.
-              </p>
+            <p className="mx-auto max-w-xl text-sm leading-relaxed text-muted-foreground">
+              Buy $SPINE at pump.fun prices. <br /> Powered by pinesuru — token presale gated app on
+              Solana.
+            </p>
           </div>
           <div className="flex items-center gap-2">
-            <Button nativeButton={false} render={<Link href="/presale" />}>
-              Join Presale
-            </Button>
             <Button
               nativeButton={false}
               variant="outline"
-              render={<Link href="/leaderboard" />}
+              render={<Link href="https://pump.fun/coin/HGXokkbaqUixM8JbsBHcEjhCVyartUrrQnV4YJH7pump" />}
             >
-              Leaderboard
+              Buy on pump.fun
             </Button>
           </div>
 
-          <div className="grid w-full max-w-2xl grid-cols-2 gap-3 sm:grid-cols-4">
+          <div className="grid w-full max-w-3xl grid-cols-2 gap-3 sm:grid-cols-3">
             <HeroStat
-              label="Treasury balance"
+              label="Token price"
+              value={market ? formatUsd(market.priceUsd) : "—"}
+            />
+            <HeroStat
+              label="Market cap"
+              value={market?.marketCap ? formatCompact(market.marketCap) : "—"}
+            />
+            <HeroStat
+              label="24h volume"
+              value={market?.volume24h ? formatCompact(market.volume24h) : "—"}
+            />
+            <HeroStat
+              label="Liquidity"
+              value={market?.liquidityUsd ? formatCompact(market.liquidityUsd) : "—"}
+            />
+            <HeroStat
+              label="24h change"
               value={
-                treasury ? `${treasury.sol.toFixed(2)} SOL` : "—"
+                market?.priceChange24h != null
+                  ? `${market.priceChange24h >= 0 ? "+" : ""}${market.priceChange24h.toFixed(2)}%`
+                  : "—"
+              }
+              className={
+                market?.priceChange24h != null
+                  ? market.priceChange24h >= 0
+                    ? "text-emerald-500"
+                    : "text-red-500"
+                  : undefined
               }
             />
             <HeroStat
-              label="Total collected"
-              value={`${totalSolCollected.toFixed(2)} SOL`}
+              label="Buy / Sell (24h)"
+              value={
+                market
+                  ? `${market.txnsBuys24h.toLocaleString()} / ${market.txnsSells24h.toLocaleString()}`
+                  : "—"
+              }
             />
-            <HeroStat label="Verified buys" value={verifiedCount.toLocaleString()} />
-            <HeroStat label="Token price" value={formatUsd(tokenPriceUsd)} />
           </div>
         </section>
 
-        {presaleConfig.collectionWallet ? (
+        {/* {presaleConfig.collectionWallet ? (
           <section className="flex flex-col gap-3">
             <SectionHeading
               eyebrow="Trust"
@@ -179,7 +187,41 @@ export default async function Page() {
             />
             <TrustSection />
           </section>
-        ) : null}
+        ) : null} */}
+        <section className="relative overflow-hidden rounded-lg border">
+          <Image
+            src="/banner-1.png"
+            alt="SPINE on Pump.fun"
+            fill
+            sizes="100vw"
+            priority
+            className="absolute inset-0 object-cover"
+          />
+          <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/55 to-black/30" />
+          <div className="absolute inset-0 bg-black/25" />
+          <div className="relative flex flex-col items-start gap-4 p-6 sm:p-10">
+            <span className="inline-flex items-center gap-2 rounded-full border bg-card/70 px-3 py-1 text-xs font-medium text-primary backdrop-blur">
+              Token presale gated app
+            </span>
+            <h2 className="font-heading max-w-xl text-2xl font-semibold tracking-tight sm:text-3xl">
+              Buy <span className="text-primary">SPINE</span> at pump.fun prices
+            </h2>
+            <p className="max-w-md text-sm leading-relaxed text-white/80">
+              Jump into the $SPINE liquidity pool right on pump.fun and join the
+              pinesuru-powered presale community.
+            </p>
+            <Button
+              nativeButton={false}
+              render={
+                <Link href="https://pump.fun/coin/HGXokkbaqUixM8JbsBHcEjhCVyartUrrQnV4YJH7pump" />
+              }
+              size="lg"
+              className="mt-2"
+            >
+              Buy on pump.fun
+            </Button>
+          </div>
+        </section>
 
         <section className="flex flex-col gap-6">
           <SectionHeading
@@ -318,7 +360,7 @@ export default async function Page() {
 
       <footer className="border-t">
         <div className="mx-auto flex w-full max-w-6xl flex-col gap-3 p-6">
-          <div className="flex flex-wrap items-center gap-4 text-sm">
+          {/* <div className="flex flex-wrap items-center gap-4 text-sm">
             <Link
               href="/presale"
               className="text-muted-foreground hover:text-foreground"
@@ -337,7 +379,7 @@ export default async function Page() {
             >
               Profile
             </Link>
-          </div>
+          </div> */}
           <p className="text-xs leading-relaxed text-muted-foreground">
             pinnedex is a token presale gated app on Solana. Cryptocurrency is
             high risk and the value of tokens can go to zero. Always do your own
@@ -349,11 +391,21 @@ export default async function Page() {
   );
 }
 
-function HeroStat({ label, value }: { label: string; value: string }) {
+function HeroStat({
+  label,
+  value,
+  className,
+}: {
+  label: string;
+  value: string;
+  className?: string;
+}) {
   return (
     <div className="flex flex-col gap-1 rounded-md border bg-card p-4 text-left">
       <p className="text-xs text-muted-foreground">{label}</p>
-      <p className="font-heading text-lg font-semibold tabular-nums tracking-tight">
+      <p
+        className={`font-heading text-lg font-semibold tabular-nums tracking-tight ${className ?? ""}`}
+      >
         {value}
       </p>
     </div>

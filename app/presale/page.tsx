@@ -39,7 +39,7 @@ export default async function PresalePage() {
     <div className="flex min-h-svh flex-col">
       <Header />
       <main className="mx-auto flex w-full max-w-6xl flex-1 flex-col gap-6 p-6">
-        <ContractAddressBanner variant="hero" />
+        {/* <ContractAddressBanner variant="hero" /> */}
         <div className="flex flex-col gap-1">
           <h1 className="flex items-center gap-3 font-heading text-2xl font-semibold tracking-tight">
             Presale

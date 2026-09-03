@@ -77,10 +77,10 @@ export default async function ProfilePage() {
           </div>
         </div>
 
-        <div className="flex flex-col gap-2">
+        {/* <div className="flex flex-col gap-2">
           <p className="text-sm font-medium">Linked wallets</p>
           <WalletManager linkedWallets={user.wallets.map((w) => w.address)} />
-        </div>
+        </div> */}
 
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
           <div className="rounded-md border p-4">
@@ -103,7 +103,7 @@ export default async function ProfilePage() {
           </div>
         </div>
 
-        <div className="flex flex-col gap-2">
+        {/* <div className="flex flex-col gap-2">
           <p className="text-sm font-medium">Purchases</p>
           {purchases.length === 0 ? (
             <p className="text-sm text-muted-foreground">
@@ -119,9 +119,8 @@ export default async function ProfilePage() {
                 <li key={p.txSignature} className="rounded-md border p-3 text-sm">
                   <div className="flex items-center justify-between gap-2">
                     <span
-                      className={`font-medium ${
-                        p.status === "verified" ? "text-emerald-600" : ""
-                      }`}
+                      className={`font-medium ${p.status === "verified" ? "text-emerald-600" : ""
+                        }`}
                     >
                       {p.tokenAllocation.toLocaleString()} tokens
                     </span>
@@ -146,12 +145,12 @@ export default async function ProfilePage() {
               ))}
             </ul>
           )}
-        </div>
+        </div> */}
 
-        <p className="text-xs text-muted-foreground">
+        {/* <p className="text-xs text-muted-foreground">
           Note: 1 token = {formatUsd(tokenPriceUsd)} · airdrop allocations will be
           executed after the presale.
-        </p>
+        </p> */}
       </main>
     </div>
   );

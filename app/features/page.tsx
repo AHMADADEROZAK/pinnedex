@@ -224,13 +224,13 @@ export default function FeaturesPage() {
           </section>
         ))}
 
-        <section className="flex flex-col items-center gap-4 rounded-md border bg-card p-6 text-center">
+        {/* <section className="flex flex-col items-center gap-4 rounded-md border bg-card p-6 text-center">
           <p className="max-w-md text-sm text-muted-foreground">
             Want the full DexScreener dashboard, radar signals and Telegram
             alerts? Connect a wallet and activate a membership.
           </p>
           <div className="flex items-center gap-2">
-            <Button nativeButton={false} render={<Link href="/presale" />}>
+            <Button disabled={true} nativeButton={false} render={<Link href="/presale" />}>
               Join Presale
             </Button>
             <Button
@@ -241,12 +241,12 @@ export default function FeaturesPage() {
               Sign in
             </Button>
           </div>
-        </section>
+        </section> */}
       </main>
 
       <footer className="border-t">
         <div className="mx-auto flex w-full max-w-6xl flex-col gap-3 p-6">
-          <div className="flex flex-wrap items-center gap-4 text-sm">
+          {/* <div className="flex flex-wrap items-center gap-4 text-sm">
             <Link href="/" className="text-muted-foreground hover:text-foreground">
               Home
             </Link>
@@ -262,7 +262,7 @@ export default function FeaturesPage() {
             >
               Leaderboard
             </Link>
-          </div>
+          </div> */}
           <p className="text-xs leading-relaxed text-muted-foreground">
             pinnedex is a token presale gated app on Solana. Cryptocurrency is
             high risk and the value of tokens can go to zero. Nothing here is

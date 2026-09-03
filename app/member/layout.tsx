@@ -59,10 +59,10 @@ export default async function MemberLayout({
           <span className="font-mono text-xs text-muted-foreground">
             {wallet.slice(0, 6)}...{wallet.slice(-4)}
           </span>
-          <div className="ml-auto flex items-center gap-2">
+          {/* <div className="ml-auto flex items-center gap-2">
             <WalletBalance />
             <ConnectWallet />
-          </div>
+          </div> */}
         </header>
         <div className="flex flex-1 flex-col gap-4 p-4 md:p-6">
           {children}

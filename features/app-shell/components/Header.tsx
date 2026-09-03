@@ -19,24 +19,24 @@ export async function Header() {
     { href: "/features", label: "Features", icon: "features" },
     { href: "/news", label: "News", icon: "news" },
     { href: "/community", label: "Community", icon: "community" },
-    {
-      href: "/presale",
-      label: "Presale",
-      icon: "presale",
-      children: [
-        { href: "/presale", label: "Presale", icon: "presale" },
-        { href: "/presale/claim", label: "Claim", icon: "claim" },
-      ],
-    },
-    {
-      href: "/leaderboard",
-      label: "Tools",
-      icon: "leaderboard",
-      children: [
-        { href: "/leaderboard", label: "Leaderboard", icon: "leaderboard" },
-        { href: "/party-room", label: "Party Room", icon: "party-room" },
-      ],
-    },
+    // {
+    //   href: "/presale",
+    //   label: "Presale",
+    //   icon: "presale",
+    //   children: [
+    //     { href: "/presale", label: "Presale", icon: "presale" },
+    //     { href: "/presale/claim", label: "Claim", icon: "claim" },
+    //   ],
+    // },
+    // {
+    //   href: "/leaderboard",
+    //   label: "Tools",
+    //   icon: "leaderboard",
+    //   children: [
+    //     { href: "/leaderboard", label: "Leaderboard", icon: "leaderboard" },
+    //     { href: "/party-room", label: "Party Room", icon: "party-room" },
+    //   ],
+    // },
     ...(firstWallet
       ? ([
         {
@@ -75,15 +75,15 @@ export async function Header() {
           </div>
           <div className="flex items-center justify-end gap-2">
             <div className="hidden items-center gap-2 md:flex">
-              <WalletBalance />
-              <ConnectWallet />
+              {/* <WalletBalance /> */}
+              {/* <ConnectWallet /> */}
             </div>
             <UserMenu />
             <MobileNav links={visibleLinks} />
           </div>
         </div>
       </header>
-      <ContractAddressBanner />
+      {/* <ContractAddressBanner /> */}
     </>
   );
 }
