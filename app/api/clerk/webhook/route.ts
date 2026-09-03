@@ -31,11 +31,11 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
   let event: WebhookEvent;
 
   try {
-    event = wh.verify(await req.text(), {
+    event = (wh.verify(await req.text(), {
       "svix-id": headers.get("svix-id") ?? "",
       "svix-timestamp": headers.get("svix-timestamp") ?? "",
       "svix-signature": headers.get("svix-signature") ?? "",
-    }) as WebhookEvent;
+    }) as unknown) as WebhookEvent;
   } catch {
     return NextResponse.json({ error: "Signature tidak valid." }, { status: 400 });
   }
